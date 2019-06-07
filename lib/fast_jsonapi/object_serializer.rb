@@ -129,7 +129,7 @@ module FastJsonapi
         subclass.data_links = data_links.dup if data_links.present?
         subclass.cached = cached
         subclass.set_type(subclass.reflected_record_type) if subclass.reflected_record_type
-        subclass.meta_to_serialize = meta_to_serialize
+        subclass.meta_to_serialize = meta_to_serialize.dup if meta_to_serialize.present?
         subclass.record_id = record_id
       end
 
@@ -228,7 +228,8 @@ module FastJsonapi
       end
 
       def meta(&block)
-        self.meta_to_serialize = block
+        self.meta_to_serialize ||= []
+        self.meta_to_serialize.push(block)
       end
 
       def create_relationship(base_key, relationship_type, options, block)
