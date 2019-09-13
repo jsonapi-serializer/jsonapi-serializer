@@ -305,7 +305,12 @@ module FastJsonapi
             relationships_to_serialize = klass.relationships_to_serialize || {}
             relationship_to_include = relationships_to_serialize[parsed_include]
             raise ArgumentError, "#{parsed_include} is not specified as a relationship on #{klass.name}" unless relationship_to_include
-            klass = relationship_to_include.serializer.to_s.constantize unless relationship_to_include.polymorphic.is_a?(Hash)
+            if relationship_to_include.polymorphic.is_a?(Hash)
+              # static check is not possible since the serializer is defined based on the instance class
+              break
+            else
+              klass = relationship_to_include.serializer.to_s.constantize
+            end
           end
         end
       end
