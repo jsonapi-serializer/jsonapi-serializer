@@ -4,6 +4,10 @@
 
 A lightning fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
 
+Note: this gem deals only with implementing the JSON:API spec. If your API
+responses are not formatted according to the JSON:API spec, this library will
+not work for you.
+
 # Performance Comparison
 
 We compare serialization times with Active Model Serializer as part of RSpec performance tests included on this library. We want to ensure that with every change on this library, serialization time is at least `25 times` faster than Active Model Serializers on up to current benchmark of 1000 records. Please read the [performance document](https://github.com/Netflix/fast_jsonapi/blob/master/performance_methodology.md) for any questions related to methodology.
@@ -33,6 +37,7 @@ Fast JSON API serialized 250 records in 3.01 ms
   * [Conditional Attributes](#conditional-attributes)
   * [Conditional Relationships](#conditional-relationships)
   * [Sparse Fieldsets](#sparse-fieldsets)
+  * [Using helper methods](#using-helper-methods)
 * [Contributing](#contributing)
 
 
@@ -100,6 +105,17 @@ movie.actor_ids = [1, 2, 3]
 movie.owner_id = 3
 movie.movie_type_id = 1
 movie
+
+movies =
+  2.times.map do |i|
+    m = Movie.new
+    m.id = i + 1
+    m.name = "test movie #{i}"
+    m.actor_ids = [1, 2, 3]
+    m.owner_id = 3
+    m.movie_type_id = 1
+    m
+  end
 ```
 
 ### Object Serialization
@@ -262,6 +278,12 @@ class MovieSerializer
 end
 ```
 
+Relationship links can also be configured to be defined as a method on the object.
+
+```ruby
+  has_many :actors, links: :actor_relationship_links
+```
+
 This will create a `self` reference for the relationship, and a `related` link for loading the actors relationship later. NB: This will not automatically disable loading the data in the relationship, you'll need to do that using the `lazy_load_data` option:
 
 ```ruby
@@ -276,7 +298,12 @@ This will create a `self` reference for the relationship, and a `related` link f
 ### Meta Per Resource
 
 For every resource in the collection, you can include a meta object containing non-standard meta-information about a resource that can not be represented as an attribute or relationship.
+
+
 ```ruby
+class MovieSerializer
+  include FastJsonapi::ObjectSerializer
+
   meta do |movie|
     {
       years_since_release: Date.current.year - movie.year
@@ -298,7 +325,7 @@ options[:links] = {
   prev: '...'
 }
 options[:include] = [:actors, :'actors.agency', :'actors.agency.state']
-MovieSerializer.new([movie, movie], options).serialized_json
+MovieSerializer.new(movies, options).serialized_json
 ```
 
 ### Collection Serialization
@@ -310,15 +337,15 @@ options[:links] = {
   next: '...',
   prev: '...'
 }
-hash = MovieSerializer.new([movie, movie], options).serializable_hash
-json_string = MovieSerializer.new([movie, movie], options).serialized_json
+hash = MovieSerializer.new(movies, options).serializable_hash
+json_string = MovieSerializer.new(movies, options).serialized_json
 ```
 
 #### Control Over Collection Serialization
 
 You can use `is_collection` option to have better control over collection serialization.
 
-If this option is not provided or `nil` autedetect logic is used to try understand
+If this option is not provided or `nil` autodetect logic is used to try understand
 if provided resource is a single object or collection.
 
 Autodetect logic is compatible with most DB toolkits (ActiveRecord, Sequel, etc.) but
@@ -450,13 +477,75 @@ serializer = MovieSerializer.new(movie, { fields: { movie: [:name] } })
 serializer.serializable_hash
 ```
 
+### Using helper methods
+
+You can mix-in code from another ruby module into your serializer class to reuse functions across your app.
+
+Since a serializer is evaluated in a the context of a `class` rather than an `instance` of a class, you need to make sure that your methods act as `class` methods when mixed in.
+
+
+##### Using ActiveSupport::Concern
+
+``` ruby
+
+module AvatarHelper
+  extend ActiveSupport::Concern
+
+  class_methods do
+    def avatar_url(user)
+      user.image.url
+    end
+  end
+end
+
+class UserSerializer
+  include FastJsonapi::ObjectSerializer
+
+  include AvatarHelper # mixes in your helper method as class method
+
+  set_type :user
+
+  attributes :name, :email
+
+  attribute :avatar do |user|
+    avatar_url(user)
+  end
+end
+
+```
+
+##### Using Plain Old Ruby
+
+``` ruby
+module AvatarHelper
+  def avatar_url(user)
+    user.image.url
+  end
+end
+
+class UserSerializer
+  include FastJsonapi::ObjectSerializer
+
+  extend AvatarHelper # mixes in your helper method as class method
+
+  set_type :user
+
+  attributes :name, :email
+
+  attribute :avatar do |user|
+    avatar_url(user)
+  end
+end
+
+```
+
 ### Customizable Options
 
 Option | Purpose | Example
 ------------ | ------------- | -------------
 set_type | Type name of Object | ```set_type :movie ```
 key | Key of Object | ```belongs_to :owner, key: :user ```
-set_id | ID of Object | ```set_id :owner_id ``` or ```set_id { |record, params| params[:admin] ? record.id : "#{record.name.downcase}-#{record.id}" }```
+set_id | ID of Object | ```set_id :owner_id ``` or ```set_id { \|record, params\| params[:admin] ? record.id : "#{record.name.downcase}-#{record.id}" }```
 cache_options | Hash to enable caching and set cache length | ```cache_options enabled: true, cache_length: 12.hours, race_condition_ttl: 10.seconds```
 id_method_name | Set custom method name to get ID of an object (If block is provided for the relationship, `id_method_name` is invoked on the return value of the block instead of the resource object) | ```has_many :locations, id_method_name: :place_ids ```
 object_method_name | Set custom method name to get related objects | ```has_many :locations, object_method_name: :places ```
@@ -479,7 +568,7 @@ Skylight relies on `ActiveSupport::Notifications` to track these two core method
 require 'fast_jsonapi/instrumentation'
 ```
 
-The two instrumented notifcations are supplied by these two constants:
+The two instrumented notifications are supplied by these two constants:
 * `FastJsonapi::ObjectSerializer::SERIALIZABLE_HASH_NOTIFICATION`
 * `FastJsonapi::ObjectSerializer::SERIALIZED_JSON_NOTIFICATION`
 
@@ -517,9 +606,3 @@ To run tests only performance tests:
 ```bash
 rspec spec --tag performance:true
 ```
-
-### We're Hiring!
-
-Join the Netflix Studio Engineering team and help us build gems like this!
-
-* [Senior Ruby Engineer](https://jobs.netflix.com/jobs/864893)
