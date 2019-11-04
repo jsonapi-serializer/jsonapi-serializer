@@ -193,7 +193,10 @@ describe FastJsonapi::ObjectSerializer do
   end
 
   describe '#set_id' do
-    subject(:serializable_hash) { MovieSerializer.new(resource).serializable_hash }
+    let(:params) { {} }
+    subject(:serializable_hash) do
+      MovieSerializer.new(resource, { params: params }).serializable_hash
+    end
 
     context 'method name' do
       before do
@@ -213,7 +216,7 @@ describe FastJsonapi::ObjectSerializer do
       end
 
       context 'when an array of records is given' do
-        let(:resource) { [movie, movie] }
+        let(:resource) { build_movies(2) }
 
         it 'returns correct hash which id equals owner_id' do
           expect(serializable_hash[:data][0][:id].to_i).to eq movie.owner_id
@@ -223,8 +226,12 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with block' do
+      let(:params) { { prefix: 'movie' } }
+
       before do
-        MovieSerializer.set_id { |record| "movie-#{record.owner_id}" }
+        MovieSerializer.set_id do |record, params|
+          "#{params[:prefix]}-#{record.owner_id}"
+        end
       end
 
       after do
@@ -240,7 +247,7 @@ describe FastJsonapi::ObjectSerializer do
       end
 
       context 'when an array of records is given' do
-        let(:resource) { [movie, movie] }
+        let(:resource) { build_movies(2) }
 
         it 'returns correct hash which id equals movie-id' do
           expect(serializable_hash[:data][0][:id]).to eq "movie-#{movie.owner_id}"
@@ -400,10 +407,30 @@ describe FastJsonapi::ObjectSerializer do
         expect(action_serializable_hash[:data][:links][:url]).to eq "/action-movie/#{movie.id}"
       end
     end
+
+    describe 'optional links' do
+      subject(:downloadable_serializable_hash) { OptionalDownloadableMovieSerializer.new(movie, params).serializable_hash }
+
+      context 'when the link is provided' do
+        let(:params) { { params: { signed_url: signed_url } } }
+        let(:signed_url) { 'http://example.com/download_link?signature=abcdef' }
+
+        it 'includes the link' do
+          expect(downloadable_serializable_hash[:data][:links][:download]).to eq signed_url
+        end
+      end
+
+      context 'when the link is not provided' do
+        let(:params) { { params: {} } }
+        it 'does not include the link' do
+          expect(downloadable_serializable_hash[:data][:links]).to_not have_key(:download)
+        end
+      end
+    end
   end
 
   describe '#key_transform' do
-    subject(:hash) { movie_serializer_class.new([movie, movie], include: [:movie_type]).serializable_hash }
+    subject(:hash) { movie_serializer_class.new(build_movies(2), include: [:movie_type]).serializable_hash }
 
     let(:movie_serializer_class) { "#{key_transform}_movie_serializer".classify.constantize }
 
