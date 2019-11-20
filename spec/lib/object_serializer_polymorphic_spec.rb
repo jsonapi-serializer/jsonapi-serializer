@@ -81,7 +81,7 @@ describe FastJsonapi::ObjectSerializer do
       list = List.new
       list.id = 1
       list.items = [checklist_item, car]
-      expect(-> {ListSerializer.new(list, include: ["items.list"])}).not_to raise_error
+      expect { ListSerializer.new(list, include: ["items.list"]) }.not_to raise_error
     end
   end
 end
