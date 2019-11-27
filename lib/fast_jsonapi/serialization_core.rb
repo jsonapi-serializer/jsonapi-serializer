@@ -57,7 +57,8 @@ module FastJsonapi
         relationships = {} if fieldset == []
 
         relationships.each_with_object({}) do |(key, relationship), hash|
-          included = includes_list.present? && includes_list.include?(key)
+          embedded_key = "#{record.class.name.underscore.pluralize}.#{key}".to_sym
+          included = includes_list.present? && (includes_list.include?(key) || includes_list.include?(embedded_key))
           relationship.serialize(record, included, params, hash)
         end
       end
