@@ -51,7 +51,7 @@ describe FastJsonapi::ObjectSerializer do
     animal = Animal.new
     animal.id = 1
     animal.species = 'Mellivora capensis'
-    animal.uuid = 'sdfsdfds'
+    animal.uuid = SecureRandom.uuid
     animal
   end
 

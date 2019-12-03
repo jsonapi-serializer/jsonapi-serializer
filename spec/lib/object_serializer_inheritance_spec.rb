@@ -130,9 +130,9 @@ describe FastJsonapi::ObjectSerializer do
     it 'inherits the id source' do
       e = Employee.new
       e.id = 2
-      e.uuid = 'dfsdfsd'
+      e.uuid = SecureRandom.uuid
       id = EmployeeSerializer.new(e).serializable_hash[:data][:id]
-      expect(id).to eq('dfsdfsd')
+      expect(id).to eq(e.uuid)
     end
   end
 
