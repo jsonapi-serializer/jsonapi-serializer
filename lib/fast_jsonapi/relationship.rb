@@ -38,6 +38,8 @@ module FastJsonapi
 
     def serialize(record, included, serialization_params, output_hash)
       if include_relationship?(record, serialization_params)
+        initialize_static_serializer if !@initialized_static_serializer
+
         empty_case = relationship_type == :has_many ? [] : nil
 
         output_hash[key] = {}
@@ -62,8 +64,8 @@ module FastJsonapi
     end
 
     def serializer_for(record, serialization_params)
-      if static_serializer
-        return static_serializer
+      if @static_serializer
+        return @static_serializer
 
       elsif serializer.is_a?(Proc)
         serializer.arity.abs == 1 ? serializer.call(record) : serializer.call(record, serialization_params)
@@ -77,67 +79,19 @@ module FastJsonapi
         serializer_for_name(record.class.name)
 
       else
-        raise 'Unknown serializer'
+        raise "Unknown serializer for object #{record.inspect}"
       end
     end
 
     def static_serializer
-      return @static_serializer if @static_serializer_determined
-      @static_serializer_determined = true
-
-      if serializer.is_a?(Symbol) || serializer.is_a?(String)
-        # a serializer was explicitly specified by name -- determine the serializer class
-        @static_serializer = serializer_for_name(serializer)
-
-      elsif serializer.is_a?(Proc)
-        # the serializer is a Proc to be executed per object -- not static
-        @static_serializer = nil
-
-      elsif serializer
-        # something else was specified, e.g. a specific serializer class -- return it
-        @static_serializer = serializer
-
-      elsif polymorphic
-        # polymorphic without a specific serializer --
-        # the serializer is determined on a record-by-record basis
-        @static_serializer = nil
-
-      elsif object_block
-        # an object block is specified without a specific serializer --
-        # assume the objects might be different and infer the serializer by their class
-        @static_serializer = nil
-
-      else
-        # no serializer information was provided -- infer it from the relationship name
-        serializer_name = name.to_s
-        serializer_name = serializer_name.singularize if relationship_type.to_sym == :has_many
-        @static_serializer = serializer_for_name(serializer_name)
-      end
-    end
-
-    def dynamic_serializer?
-      static_serializer.nil?
-    end
-
-    def record_type_for(record, serialization_params)
-      # if a record_type was specified on the relationship, use it
-      return @record_type_for ||= run_key_transform(record_type) if record_type
-      # if not, use the record type of the serializer, and memoize the transformed version
-      @record_types_for ||= {}
-      serializer = serializer_for(record, serialization_params)
-      @record_types_for[serializer] ||= run_key_transform(serializer.record_type)
-    end
-
-    def static_record_type
-      @static_record_type ||= run_key_transform(record_type || static_serializer.record_type)
+      initialize_static_serializer
+      @static_serializer
     end
 
     private
 
     def ids_hash_from_record_and_relationship(record, params = {})
-      return ids_hash(
-        fetch_id(record, params)
-      ) unless dynamic_serializer?
+      return ids_hash(fetch_id(record, params), @static_record_type) if @static_record_type
 
       return unless associated_object = fetch_associated_object(record, params)
 
@@ -153,9 +107,9 @@ module FastJsonapi
       id_hash(record.public_send(id_method_name), associated_record_type)
     end
 
-    def ids_hash(ids)
-      return ids.map { |id| id_hash(id, static_record_type) } if ids.respond_to? :map
-      id_hash(ids, static_record_type) # ids variable is just a single id here
+    def ids_hash(ids, record_type)
+      return ids.map { |id| id_hash(id, record_type) } if ids.respond_to? :map
+      id_hash(ids, record_type) # ids variable is just a single id here
     end
 
     def id_hash(id, record_type, default_return=false)
@@ -193,6 +147,44 @@ module FastJsonapi
       end
     end
 
+    def initialize_static_serializer
+      return if @initialized_static_serializer
+      @initialized_static_serializer = true
+      @static_serializer = fetch_static_serializer
+      @static_record_type = fetch_static_record_type
+    end
+
+    def fetch_static_serializer
+      if serializer.is_a?(Symbol) || serializer.is_a?(String)
+        # a serializer was explicitly specified by name -- determine the serializer class
+        serializer_for_name(serializer)
+
+      elsif serializer.is_a?(Proc)
+        # the serializer is a Proc to be executed per object -- not static
+        nil
+
+      elsif serializer
+        # something else was specified, e.g. a specific serializer class -- return it
+        serializer
+
+      elsif polymorphic
+        # polymorphic without a specific serializer --
+        # the serializer is determined on a record-by-record basis
+        nil
+
+      elsif object_block
+        # an object block is specified without a specific serializer --
+        # assume the objects might be different and infer the serializer by their class
+        nil
+
+      else
+        # no serializer information was provided -- infer it from the relationship name
+        serializer_name = name.to_s
+        serializer_name = serializer_name.singularize if relationship_type.to_sym == :has_many
+        serializer_for_name(serializer_name)
+      end
+    end
+
     def serializer_for_name(name)
       @serializers_for_name ||= {}
       @serializers_for_name[name] ||= compute_serializer_for_name(name)
@@ -210,5 +202,20 @@ module FastJsonapi
           "You can specify the serializer directly, e.g. '#{relationship_type} #{self.name.to_sym.inspect}, serializer: #{serializer_class_name}'."
       end
     end
+
+    def record_type_for(record, serialization_params)
+      # if the record type is static, return it
+      return @static_record_type if @static_record_type
+      # if not, use the record type of the serializer, and memoize the transformed version
+      @record_types_for ||= {}
+      serializer = serializer_for(record, serialization_params)
+      @record_types_for[serializer] ||= run_key_transform(serializer.record_type)
+    end
+
+    def fetch_static_record_type
+      return run_key_transform(record_type) if record_type
+      return run_key_transform(@static_serializer.record_type) if @static_serializer
+    end
+
   end
 end
