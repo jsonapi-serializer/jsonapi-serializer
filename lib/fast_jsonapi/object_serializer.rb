@@ -252,6 +252,7 @@ module FastJsonapi
             options[:id_method_name],
             "#{base_serialization_key}#{id_postfix}".to_sym,
             polymorphic,
+            options[:serializer],
             block
           ),
           record_type: options[:record_type],
@@ -268,8 +269,8 @@ module FastJsonapi
         )
       end
 
-      def compute_id_method_name(custom_id_method_name, id_method_name_from_relationship, polymorphic, block)
-        if block.present? || polymorphic
+      def compute_id_method_name(custom_id_method_name, id_method_name_from_relationship, polymorphic, serializer, block)
+        if block.present? || serializer.is_a?(Proc) || polymorphic
           custom_id_method_name || :id
         else
           custom_id_method_name || id_method_name_from_relationship
