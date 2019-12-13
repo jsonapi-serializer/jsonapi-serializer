@@ -245,6 +245,7 @@ module FastJsonapi
         polymorphic = fetch_polymorphic_option(options)
 
         Relationship.new(
+          owner: self,
           key: options[:key] || run_key_transform(base_key),
           name: name,
           id_method_name: compute_id_method_name(
@@ -253,10 +254,10 @@ module FastJsonapi
             polymorphic,
             block
           ),
-          record_type: options[:record_type] || run_key_transform(base_key_sym),
+          record_type: options[:record_type],
           object_method_name: options[:object_method_name] || name,
           object_block: block,
-          serializer: compute_serializer_name(options[:serializer] || base_key_sym),
+          serializer: options[:serializer] || base_key_sym,
           relationship_type: relationship_type,
           cached: options[:cached],
           polymorphic: polymorphic,
@@ -273,13 +274,6 @@ module FastJsonapi
         else
           custom_id_method_name || id_method_name_from_relationship
         end
-      end
-
-      def compute_serializer_name(serializer_key)
-        return serializer_key unless serializer_key.is_a? Symbol
-        namespace = self.name.gsub(/()?\w+Serializer$/, '')
-        serializer_name = serializer_key.to_s.classify + 'Serializer'
-        (namespace + serializer_name).to_sym
       end
 
       def fetch_polymorphic_option(options)
@@ -314,7 +308,7 @@ module FastJsonapi
             relationships_to_serialize = klass.relationships_to_serialize || {}
             relationship_to_include = relationships_to_serialize[parsed_include]
             raise ArgumentError, "#{parsed_include} is not specified as a relationship on #{klass.name}" unless relationship_to_include
-            klass = relationship_to_include.serializer.to_s.constantize unless relationship_to_include.polymorphic.is_a?(Hash)
+            #klass = relationship_to_include.serializer.to_s.constantize unless relationship_to_include.polymorphic.is_a?(Hash)
           end
         end
       end

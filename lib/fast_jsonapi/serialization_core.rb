@@ -125,10 +125,6 @@ module FastJsonapi
             next unless relationships_to_serialize && relationships_to_serialize[item]
             relationship_item = relationships_to_serialize[item]
             next unless relationship_item.include_relationship?(record, params)
-            unless relationship_item.polymorphic.is_a?(Hash)
-              record_type = relationship_item.record_type
-              serializer = relationship_item.serializer.to_s.constantize
-            end
             relationship_type = relationship_item.relationship_type
 
             included_objects = relationship_item.fetch_associated_object(record, params)
@@ -136,10 +132,8 @@ module FastJsonapi
             included_objects = [included_objects] unless relationship_type == :has_many
 
             included_objects.each do |inc_obj|
-              if relationship_item.polymorphic.is_a?(Hash)
-                record_type = inc_obj.class.name.demodulize.underscore
-                serializer = self.compute_serializer_name(inc_obj.class.name.demodulize.to_sym).to_s.constantize
-              end
+              serializer = relationship_item.serializer_for(record, params)
+              record_type = serializer.record_type
 
               if remaining_items.present?
                 serializer_records = serializer.get_included_records(inc_obj, remaining_items, known_included_objects, fieldsets, params)
@@ -151,7 +145,7 @@ module FastJsonapi
 
               known_included_objects[code] = inc_obj
 
-              included_records << serializer.record_hash(inc_obj, fieldsets[serializer.record_type], includes_list, params)
+              included_records << serializer.record_hash(inc_obj, fieldsets[record_type], includes_list, params)
             end
           end
         end
