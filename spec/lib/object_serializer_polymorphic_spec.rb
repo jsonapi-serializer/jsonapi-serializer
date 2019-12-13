@@ -17,6 +17,26 @@ describe FastJsonapi::ObjectSerializer do
     attr_accessor :id, :uuid, :species
   end
 
+  class ChecklistItemSerializer
+    include FastJsonapi::ObjectSerializer
+    set_type :checklist_item
+    attributes :name
+    set_key_transform :dash
+  end
+
+  class CarSerializer
+    include FastJsonapi::ObjectSerializer
+    set_type :car
+    attributes :model, :year
+    set_key_transform :dash
+  end
+
+  class AnimalSerializer
+    include FastJsonapi::ObjectSerializer
+    set_type :checklist_item
+    attributes :uuid, :species
+  end
+
   class ListSerializer
     include FastJsonapi::ObjectSerializer
     set_type :list

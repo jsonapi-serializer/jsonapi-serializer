@@ -73,6 +73,9 @@ module FastJsonapi
         name ||= record.class.name
         serializer_for_name(name)
 
+      elsif object_block
+        serializer_for_name(record.class.name)
+
       else
         raise 'Unknown serializer'
       end
@@ -81,12 +84,34 @@ module FastJsonapi
     def static_serializer
       return @static_serializer if @static_serializer_determined
       @static_serializer_determined = true
-      if polymorphic
-        nil
-      elsif serializer.is_a?(Symbol) || serializer.is_a?(String)
+
+      if serializer.is_a?(Symbol) || serializer.is_a?(String)
+        # a serializer was explicitly specified by name -- determine the serializer class
         @static_serializer = serializer_for_name(serializer)
-      else
+
+      elsif serializer.is_a?(Proc)
+        # the serializer is a Proc to be executed per object -- not static
+        @static_serializer = nil
+
+      elsif serializer
+        # something else was specified, e.g. a specific serializer class -- return it
         @static_serializer = serializer
+
+      elsif polymorphic
+        # polymorphic without a specific serializer --
+        # the serializer is determined on a record-by-record basis
+        @static_serializer = nil
+
+      elsif object_block
+        # an object block is specified without a specific serializer --
+        # assume the objects might be different and infer the serializer by their class
+        @static_serializer = nil
+
+      else
+        # no serializer information was provided -- infer it from the relationship name
+        serializer_name = name.to_s
+        serializer_name = serializer_name.singularize if relationship_type.to_sym == :has_many
+        @static_serializer = serializer_for_name(serializer_name)
       end
     end
 
@@ -176,7 +201,14 @@ module FastJsonapi
     def compute_serializer_for_name(name)
       namespace = owner.name.gsub(/()?\w+Serializer$/, '')
       serializer_name = name.to_s.demodulize.classify + 'Serializer'
-      return (namespace + serializer_name).constantize
+      serializer_class_name = namespace + serializer_name
+      begin
+        return serializer_class_name.constantize
+      rescue NameError
+        raise "Cannot resolve a serializer class for '#{name}'.  " +
+          "Attempted to find '#{serializer_class_name}'.  " +
+          "You can specify the serializer directly, e.g. '#{relationship_type} #{self.name.to_sym.inspect}, serializer: #{serializer_class_name}'."
+      end
     end
   end
 end
