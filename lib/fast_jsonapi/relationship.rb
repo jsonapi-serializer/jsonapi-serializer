@@ -81,8 +81,9 @@ module FastJsonapi
     def static_serializer
       return @static_serializer if @static_serializer_determined
       @static_serializer_determined = true
-
-      if serializer.is_a?(Symbol) || serializer.is_a?(String)
+      if polymorphic
+        nil
+      elsif serializer.is_a?(Symbol) || serializer.is_a?(String)
         @static_serializer = serializer_for_name(serializer)
       else
         @static_serializer = serializer
