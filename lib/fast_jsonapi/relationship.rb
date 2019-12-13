@@ -34,6 +34,8 @@ module FastJsonapi
       @transform_method = transform_method
       @links = links || {}
       @lazy_load_data = lazy_load_data
+      @record_types_for = {}
+      @serializers_for_name = {}
     end
 
     def serialize(record, included, serialization_params, output_hash)
@@ -186,7 +188,6 @@ module FastJsonapi
     end
 
     def serializer_for_name(name)
-      @serializers_for_name ||= {}
       @serializers_for_name[name] ||= compute_serializer_for_name(name)
     end
 
@@ -207,7 +208,6 @@ module FastJsonapi
       # if the record type is static, return it
       return @static_record_type if @static_record_type
       # if not, use the record type of the serializer, and memoize the transformed version
-      @record_types_for ||= {}
       serializer = serializer_for(record, serialization_params)
       @record_types_for[serializer] ||= run_key_transform(serializer.record_type)
     end
