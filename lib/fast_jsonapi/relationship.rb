@@ -90,6 +90,11 @@ module FastJsonapi
       @static_serializer
     end
 
+    def static_record_type
+      initialize_static_serializer
+      @static_record_type
+    end
+
     private
 
     def ids_hash_from_record_and_relationship(record, params = {})

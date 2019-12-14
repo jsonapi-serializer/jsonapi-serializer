@@ -16,35 +16,51 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with namespace' do
+
+      before do
+        class AppName::V1::RoleSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
       let(:serializer) { AppName::V1::MovieSerializer }
       let(:children) { [:roles] }
+      let(:relationship_serializer) { AppName::V1::RoleSerializer }
 
       context 'with overrides' do
         let(:children) { [:roles, id_method_name: :roles_only_ids, record_type: :super_role] }
 
-        it_behaves_like 'returning correct relationship hash', :'AppName::V1::RoleSerializer', :roles_only_ids, :super_role
+        it_behaves_like 'returning correct relationship hash', :roles_only_ids, :super_role
       end
 
       context 'without overrides' do
         let(:children) { [:roles] }
 
-        it_behaves_like 'returning correct relationship hash', :'AppName::V1::RoleSerializer', :role_ids, :role
+        it_behaves_like 'returning correct relationship hash', :role_ids, :role
       end
     end
 
     context 'without namespace' do
+
+      before do
+        class RoleSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
       let(:serializer) { MovieSerializer }
+      let(:relationship_serializer) { RoleSerializer }
 
       context 'with overrides' do
         let(:children) { [:roles, id_method_name: :roles_only_ids, record_type: :super_role] }
 
-        it_behaves_like 'returning correct relationship hash', :'RoleSerializer', :roles_only_ids, :super_role
+        it_behaves_like 'returning correct relationship hash', :roles_only_ids, :super_role
       end
 
       context 'without overrides' do
         let(:children) { [:roles] }
 
-        it_behaves_like 'returning correct relationship hash', :'RoleSerializer', :role_ids, :role
+        it_behaves_like 'returning correct relationship hash', :role_ids, :role
       end
     end
   end
@@ -124,15 +140,31 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with overrides' do
-      let(:parent) { [:area, id_method_name: :blah_id, record_type: :awesome_area, serializer: :my_area] }
 
-      it_behaves_like 'returning correct relationship hash', :'MyAreaSerializer', :blah_id, :awesome_area
+      before do
+        class MyAreaSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
+      let(:parent) { [:area, id_method_name: :blah_id, record_type: :awesome_area, serializer: :my_area] }
+      let(:relationship_serializer) { MyAreaSerializer }
+
+      it_behaves_like 'returning correct relationship hash', :blah_id, :awesome_area
     end
 
     context 'without overrides' do
-      let(:parent) { [:area] }
 
-      it_behaves_like 'returning correct relationship hash', :'AreaSerializer', :area_id, :area
+      before do
+        class AreaSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
+      let(:parent) { [:area] }
+      let(:relationship_serializer) { AreaSerializer }
+
+      it_behaves_like 'returning correct relationship hash', :area_id, :area
     end
   end
 
@@ -180,15 +212,31 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with overrides' do
-      let(:partner) { [:area, id_method_name: :blah_id, record_type: :awesome_area, serializer: :my_area] }
 
-      it_behaves_like 'returning correct relationship hash', :'MyAreaSerializer', :blah_id, :awesome_area
+      before do
+        class MyAreaSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
+      let(:partner) { [:area, id_method_name: :blah_id, record_type: :awesome_area, serializer: :my_area] }
+      let(:relationship_serializer) { MyAreaSerializer }
+
+      it_behaves_like 'returning correct relationship hash', :blah_id, :awesome_area
     end
 
     context 'without overrides' do
-      let(:partner) { [:area] }
 
-      it_behaves_like 'returning correct relationship hash', :'AreaSerializer', :area_id, :area
+      before do
+        class AreaSerializer
+          include FastJsonapi::ObjectSerializer
+        end
+      end
+
+      let(:partner) { [:area] }
+      let(:relationship_serializer) { AreaSerializer }
+
+      it_behaves_like 'returning correct relationship hash', :area_id, :area
     end
   end
 
