@@ -131,9 +131,12 @@ module FastJsonapi
             next if included_objects.blank?
             included_objects = [included_objects] unless relationship_type == :has_many
 
+            static_serializer = relationship_item.static_serializer
+            static_record_type = relationship_item.static_record_type
+
             included_objects.each do |inc_obj|
-              serializer = relationship_item.serializer_for(inc_obj, params)
-              record_type = serializer.record_type
+              serializer = static_serializer || relationship_item.serializer_for(inc_obj, params)
+              record_type = static_record_type || serializer.record_type
 
               if remaining_items.present?
                 serializer_records = serializer.get_included_records(inc_obj, remaining_items, known_included_objects, fieldsets, params)
