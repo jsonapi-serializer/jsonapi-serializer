@@ -40,8 +40,6 @@ module FastJsonapi
 
     def serialize(record, included, serialization_params, output_hash)
       if include_relationship?(record, serialization_params)
-        initialize_static_serializer unless @initialized_static_serializer
-
         empty_case = relationship_type == :has_many ? [] : nil
 
         output_hash[key] = {}
@@ -98,6 +96,8 @@ module FastJsonapi
     private
 
     def ids_hash_from_record_and_relationship(record, params = {})
+      initialize_static_serializer unless @initialized_static_serializer
+
       return ids_hash(fetch_id(record, params), @static_record_type) if @static_record_type
 
       return unless associated_object = fetch_associated_object(record, params)
