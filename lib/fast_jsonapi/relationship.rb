@@ -157,11 +157,11 @@ module FastJsonapi
     def initialize_static_serializer
       return if @initialized_static_serializer
       @initialized_static_serializer = true
-      @static_serializer = fetch_static_serializer
-      @static_record_type = fetch_static_record_type
+      @static_serializer = compute_static_serializer
+      @static_record_type = compute_static_record_type
     end
 
-    def fetch_static_serializer
+    def compute_static_serializer
       if serializer.is_a?(Symbol) || serializer.is_a?(String)
         # a serializer was explicitly specified by name -- determine the serializer class
         serializer_for_name(serializer)
@@ -217,7 +217,7 @@ module FastJsonapi
       @record_types_for[serializer] ||= run_key_transform(serializer.record_type)
     end
 
-    def fetch_static_record_type
+    def compute_static_record_type
       return run_key_transform(record_type) if record_type
       return run_key_transform(@static_serializer.record_type) if @static_serializer
     end
