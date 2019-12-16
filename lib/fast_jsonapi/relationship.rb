@@ -40,7 +40,7 @@ module FastJsonapi
 
     def serialize(record, included, serialization_params, output_hash)
       if include_relationship?(record, serialization_params)
-        initialize_static_serializer if !@initialized_static_serializer
+        initialize_static_serializer unless @initialized_static_serializer
 
         empty_case = relationship_type == :has_many ? [] : nil
 
@@ -86,12 +86,12 @@ module FastJsonapi
     end
 
     def static_serializer
-      initialize_static_serializer
+      initialize_static_serializer unless @initialized_static_serializer
       @static_serializer
     end
 
     def static_record_type
-      initialize_static_serializer
+      initialize_static_serializer unless @initialized_static_serializer
       @static_record_type
     end
 
