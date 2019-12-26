@@ -21,6 +21,16 @@ describe FastJsonapi::ObjectSerializer do
         attribute :no_param_attribute do |movie|
           "no-param-attribute"
         end
+
+        attribute :params do |movie, params|
+          params
+        end
+      end
+
+      class ActorSerializer
+        attribute :params do |actor, params|
+          params
+        end
       end
 
       User = Struct.new(:viewed)
@@ -112,6 +122,23 @@ describe FastJsonapi::ObjectSerializer do
 
           expect(no_param_attribute_values).to eq(expected_attribute_values)
         end
+      end
+    end
+
+    context "automatic parent param" do
+      let(:serializer) { MovieSerializer.new(movie, include: %i[actors]) }
+
+      it "does not add parent param to top level record" do
+        expect(hash[:data][:attributes][:params]).not_to have_key(:parent)
+      end
+
+      it "adds parent param to included record" do
+        included_actors = hash[:included].select { |object| object[:type] == :actor }
+        expect(included_actors).to be_present
+
+        expect(included_actors).to all(
+          include(attributes: hash_including(params: hash_including(parent: movie)))
+        )
       end
     end
   end
