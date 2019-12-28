@@ -331,12 +331,10 @@ describe FastJsonapi::ObjectSerializer do
       expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
     end
 
-    context 'with a second meta call' do
+    context 'with a meta call with param' do
       before do
-        MovieSerializer.meta do
-          {
-            watch_count: 4426
-          }
+        MovieSerializer.meta :watch_count do
+          4426
         end
       end
 

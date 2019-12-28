@@ -50,10 +50,8 @@ describe FastJsonapi::ObjectSerializer do
     belongs_to :country
     has_one :photo
 
-    meta do |object|
-      {
-        user_meta: true
-      }
+    meta :user_meta do |object|
+      true
     end
   end
 
@@ -101,10 +99,8 @@ describe FastJsonapi::ObjectSerializer do
 
     has_one :account
 
-    meta do
-      {
-        employee_meta: true
-      }
+    meta :employee_meta do
+      true
     end
   end
 
@@ -186,21 +182,19 @@ describe FastJsonapi::ObjectSerializer do
   end
 
   context 'when testing inheritance of meta' do
-
     it 'includes parent meta' do
       subclass_meta = EmployeeSerializer.meta_to_serialize
       superclass_meta = UserSerializer.meta_to_serialize
-      expect(subclass_meta).to include(*superclass_meta)
+      expect(subclass_meta.keys).to include(*superclass_meta.keys)
     end
 
     it 'includes child meta' do
-      expect(EmployeeSerializer.meta_to_serialize.map(&:call)).to eq([{ user_meta: true }, { employee_meta: true }])
+      expect(EmployeeSerializer.meta_to_serialize.transform_values(&:call)).to eq(user_meta: true, employee_meta: true)
     end
 
-    it 'doesnt change parent class attributes' do
+    it 'doesnt change parent meta' do
       EmployeeSerializer
-      expect(UserSerializer.meta_to_serialize.map(&:call)).to eq([{ user_meta: true }])
+      expect(UserSerializer.meta_to_serialize.transform_values(&:call)).to eq(user_meta: true)
     end
   end
-
 end

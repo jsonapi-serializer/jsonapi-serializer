@@ -227,9 +227,12 @@ module FastJsonapi
         add_relationship(relationship)
       end
 
-      def meta(&block)
-        self.meta_to_serialize ||= []
-        self.meta_to_serialize.push(block)
+      def meta(meta_name = nil, &block)
+        self.meta_to_serialize ||= {}
+
+        meta_name = meta_name ? meta_name.to_sym : :_core
+
+        self.meta_to_serialize[meta_name] = block
       end
 
       def create_relationship(base_key, relationship_type, options, block)
