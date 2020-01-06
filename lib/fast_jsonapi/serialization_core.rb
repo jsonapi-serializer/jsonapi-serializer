@@ -57,7 +57,7 @@ module FastJsonapi
         relationships = {} if fieldset == []
 
         relationships.each_with_object({}) do |(key, relationship), hash|
-          included = includes_list.present? && includes_list.include?(key)
+          included = includes_list.present? && includes_list.has_key?(key)
           relationship.serialize(record, included, params, hash)
         end
       end
@@ -101,58 +101,41 @@ module FastJsonapi
         FastJsonapi::MultiToJson.to_json(payload) if payload.present?
       end
 
-      def parse_include_item(include_item)
-        return [include_item.to_sym] unless include_item.to_s.include?('.')
-
-        include_item.to_s.split('.').map!(&:to_sym)
-      end
-
-      def remaining_items(items)
-        return unless items.size > 1
-
-        [items[1..-1].join('.').to_sym]
-      end
-
       # includes handler
       def get_included_records(record, includes_list, known_included_objects, fieldsets, params = {})
         return unless includes_list.present?
 
-        includes_list.sort.each_with_object([]) do |include_item, included_records|
-          items = parse_include_item(include_item)
-          remaining_items = remaining_items(items)
+        includes_list.each_with_object([]) do |(item, subitems), included_records|
+          relationship_item = relationships_to_serialize[item]
+          raise ArgumentError, "Could not find relationship '#{item}' on #{self.class.name}" if relationship_item.nil?
+          next unless relationship_item.include_relationship?(record, params)
+          unless relationship_item.polymorphic.is_a?(Hash)
+            record_type = relationship_item.record_type
+            serializer = relationship_item.serializer.to_s.constantize
+          end
+          relationship_type = relationship_item.relationship_type
 
-          items.each do |item|
-            next unless relationships_to_serialize && relationships_to_serialize[item]
-            relationship_item = relationships_to_serialize[item]
-            next unless relationship_item.include_relationship?(record, params)
-            unless relationship_item.polymorphic.is_a?(Hash)
-              record_type = relationship_item.record_type
-              serializer = relationship_item.serializer.to_s.constantize
+          included_objects = relationship_item.fetch_associated_object(record, params)
+          next if included_objects.blank?
+          included_objects = [included_objects] unless relationship_type == :has_many
+
+          included_objects.each do |inc_obj|
+            if relationship_item.polymorphic.is_a?(Hash)
+              record_type = inc_obj.class.name.demodulize.underscore
+              serializer = self.compute_serializer_name(inc_obj.class.name.demodulize.to_sym).to_s.constantize
             end
-            relationship_type = relationship_item.relationship_type
 
-            included_objects = relationship_item.fetch_associated_object(record, params)
-            next if included_objects.blank?
-            included_objects = [included_objects] unless relationship_type == :has_many
-
-            included_objects.each do |inc_obj|
-              if relationship_item.polymorphic.is_a?(Hash)
-                record_type = inc_obj.class.name.demodulize.underscore
-                serializer = self.compute_serializer_name(inc_obj.class.name.demodulize.to_sym).to_s.constantize
-              end
-
-              if remaining_items.present?
-                serializer_records = serializer.get_included_records(inc_obj, remaining_items, known_included_objects, fieldsets, params)
-                included_records.concat(serializer_records) unless serializer_records.empty?
-              end
-
-              code = "#{record_type}_#{serializer.id_from_record(inc_obj, params)}"
-              next if known_included_objects.key?(code)
-
-              known_included_objects[code] = inc_obj
-
-              included_records << serializer.record_hash(inc_obj, fieldsets[serializer.record_type], includes_list, params)
+            if subitems.present?
+              serializer_records = serializer.get_included_records(inc_obj, subitems, known_included_objects, fieldsets, params)
+              included_records.concat(serializer_records) unless serializer_records.empty?
             end
+
+            code = "#{record_type}_#{serializer.id_from_record(inc_obj, params)}"
+            next if known_included_objects.key?(code)
+
+            known_included_objects[code] = inc_obj
+
+            included_records << serializer.record_hash(inc_obj, fieldsets[serializer.record_type], includes_list, params)
           end
         end
       end

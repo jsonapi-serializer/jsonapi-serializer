@@ -91,10 +91,7 @@ module FastJsonapi
       @params = options[:params] || {}
       raise ArgumentError.new("`params` option passed to serializer must be a hash") unless @params.is_a?(Hash)
 
-      if options[:include].present?
-        @includes = options[:include].reject(&:blank?).map(&:to_sym)
-        self.class.validate_includes!(@includes)
-      end
+      @includes = parse_includes(options[:include])
     end
 
     def deep_symbolize(collection)
@@ -113,6 +110,29 @@ module FastJsonapi
       return force_is_collection unless force_is_collection.nil?
 
       resource.respond_to?(:size) && !resource.respond_to?(:each_pair)
+    end
+
+    def parse_includes(includes, output = {})
+      return if !includes
+
+      if includes.is_a?(Hash)
+        includes.each_pair do |k, v|
+          key = k.to_sym
+          output[key] ||= {}
+          output[key].merge!(parse_includes(v))
+        end
+      elsif includes.is_a?(Array)
+        includes.each { |i| parse_includes(i, output) }
+      elsif includes.is_a?(String) || includes.is_a?(Symbol)
+        parent = output
+        segments = includes.to_s.split('.').map(&:to_sym)
+        segments.each do |s|
+          parent[s] ||= {}
+          parent = parent[s]
+        end
+      end
+
+      return output
     end
 
     class_methods do
@@ -303,20 +323,6 @@ module FastJsonapi
           method: block || link_method_name,
           options: options
         )
-      end
-
-      def validate_includes!(includes)
-        return if includes.blank?
-
-        includes.each do |include_item|
-          klass = self
-          parse_include_item(include_item).each do |parsed_include|
-            relationships_to_serialize = klass.relationships_to_serialize || {}
-            relationship_to_include = relationships_to_serialize[parsed_include]
-            raise ArgumentError, "#{parsed_include} is not specified as a relationship on #{klass.name}" unless relationship_to_include
-            klass = relationship_to_include.serializer.to_s.constantize unless relationship_to_include.polymorphic.is_a?(Hash)
-          end
-        end
       end
     end
   end
