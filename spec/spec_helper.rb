@@ -12,9 +12,7 @@ Dir[File.dirname(__FILE__) + '/shared/examples/*.rb'].each {|file| require file 
 
 RSpec.configure do |config|
   config.include RSpec::Benchmark::Matchers
-  if ENV['TRAVIS'] == 'true' || ENV['TRAVIS'] == true
-    config.filter_run_excluding performance: true
-  end
+  config.filter_run_excluding performance: ENV['BENCHMARK'].blank?
 end
 
 Oj.optimize_rails
