@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/concern'
-require 'fast_jsonapi/multi_to_json'
 
 module FastJsonapi
   MandatoryField = Class.new(StandardError)
@@ -94,11 +93,6 @@ module FastJsonapi
         return record.send(record_id) if record_id
         raise MandatoryField, 'id is a mandatory field in the jsonapi spec' unless record.respond_to?(:id)
         record.id
-      end
-
-      # Override #to_json for alternative implementation
-      def to_json(payload)
-        FastJsonapi::MultiToJson.to_json(payload) if payload.present?
       end
 
       def parse_include_item(include_item)
