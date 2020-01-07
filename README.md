@@ -1,16 +1,15 @@
 # Fast JSON API
 
-[![Build Status](https://travis-ci.org/Netflix/fast_jsonapi.svg?branch=master)](https://travis-ci.org/Netflix/fast_jsonapi)
-
 A lightning fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
-
-Note: this gem deals only with implementing the JSON:API spec. If your API
-responses are not formatted according to the JSON:API spec, this library will
-not work for you.
 
 # Performance Comparison
 
-We compare serialization times with Active Model Serializer as part of RSpec performance tests included on this library. We want to ensure that with every change on this library, serialization time is at least `25 times` faster than Active Model Serializers on up to current benchmark of 1000 records. Please read the [performance document](https://github.com/Netflix/fast_jsonapi/blob/master/performance_methodology.md) for any questions related to methodology.
+We compare serialization times with Active Model Serializer as part of RSpec
+performance tests included on this library. We want to ensure that with every
+change on this library, serialization time is about _25 times_ faster than
+the ActiveModelSerializers on up to a current benchmark of 1000 records. Please
+read the performance article in the `docs` folder for any questions related to
+methodology.
 
 ## Benchmark times for 250 records
 
@@ -585,11 +584,9 @@ require 'fast_jsonapi/instrumentation/skylight/normalizers/serializable_hash'
 require 'fast_jsonapi/instrumentation/skylight/normalizers/serialized_json'
 ```
 
-## Contributing
-Please see [contribution check](https://github.com/Netflix/fast_jsonapi/blob/master/CONTRIBUTING.md) for more details on contributing
-
 ### Running Tests
-We use [RSpec](http://rspec.info/) for testing. We have unit tests, functional tests and performance tests. To run tests use the following command:
+The project has and requires unit tests, functional tests and performance
+tests. To run tests use the following command:
 
 ```bash
 rspec
@@ -606,3 +603,12 @@ To run tests only performance tests:
 ```bash
 rspec spec --tag performance:true
 ```
+
+## Contributing
+
+Please follow the instructions we provide as part of the issue and
+pull request creation processes.
+
+This project is intended to be a safe, welcoming space for collaboration, and
+contributors are expected to adhere to the
+[Contributor Covenant](http://contributor-covenant.org) code of conduct.
