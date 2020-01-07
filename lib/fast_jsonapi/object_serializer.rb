@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'active_support/time'
-require 'active_support/json'
 require 'active_support/concern'
 require 'active_support/inflector'
 require 'active_support/core_ext/numeric/time'
@@ -73,8 +72,13 @@ module FastJsonapi
     end
 
     def serialized_json
-      ActiveSupport::JSON.encode(serializable_hash)
+      warn(
+        'DEPRECATION: `#serialized_json` will be removed in the next release. '\
+        'More details: https://github.com/fast-jsonapi/fast_jsonapi/pull/44'
+      )
+      serializable_hash.to_json
     end
+    alias_method :to_json, :serialized_json
 
     private
 

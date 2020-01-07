@@ -127,7 +127,7 @@ hash = MovieSerializer.new(movie).serializable_hash
 
 #### Return Serialized JSON
 ```ruby
-json_string = MovieSerializer.new(movie).serialized_json
+json_string = MovieSerializer.new(movie).serializable_hash_hash.to_json
 ```
 
 #### Serialized Output
@@ -325,7 +325,7 @@ options[:links] = {
   prev: '...'
 }
 options[:include] = [:actors, :'actors.agency', :'actors.agency.state']
-MovieSerializer.new(movies, options).serialized_json
+MovieSerializer.new(movies, options).serializable_hash.to_json
 ```
 
 ### Collection Serialization
@@ -338,7 +338,7 @@ options[:links] = {
   prev: '...'
 }
 hash = MovieSerializer.new(movies, options).serializable_hash
-json_string = MovieSerializer.new(movies, options).serialized_json
+json_string = MovieSerializer.new(movies, options).serializable_hash.to_json
 ```
 
 #### Control Over Collection Serialization
