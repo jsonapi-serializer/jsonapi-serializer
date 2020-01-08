@@ -67,13 +67,13 @@ module FastJsonapi
       if @static_serializer
         return @static_serializer
 
-      elsif serializer.is_a?(Proc)
-        serializer.arity.abs == 1 ? serializer.call(record) : serializer.call(record, serialization_params)
-
       elsif polymorphic
         name = polymorphic[record.class] if polymorphic.is_a?(Hash)
         name ||= record.class.name
         serializer_for_name(name)
+
+      elsif serializer.is_a?(Proc)
+        serializer.arity.abs == 1 ? serializer.call(record) : serializer.call(record, serialization_params)
 
       elsif object_block
         serializer_for_name(record.class.name)
@@ -162,7 +162,12 @@ module FastJsonapi
     end
 
     def compute_static_serializer
-      if serializer.is_a?(Symbol) || serializer.is_a?(String)
+      if polymorphic
+        # polymorphic without a specific serializer --
+        # the serializer is determined on a record-by-record basis
+        nil
+
+      elsif serializer.is_a?(Symbol) || serializer.is_a?(String)
         # a serializer was explicitly specified by name -- determine the serializer class
         serializer_for_name(serializer)
 
@@ -173,11 +178,6 @@ module FastJsonapi
       elsif serializer
         # something else was specified, e.g. a specific serializer class -- return it
         serializer
-
-      elsif polymorphic
-        # polymorphic without a specific serializer --
-        # the serializer is determined on a record-by-record basis
-        nil
 
       elsif object_block
         # an object block is specified without a specific serializer --
