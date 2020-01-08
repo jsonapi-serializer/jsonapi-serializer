@@ -193,20 +193,7 @@ module FastJsonapi
     end
 
     def serializer_for_name(name)
-      @serializers_for_name[name] ||= compute_serializer_for_name(name)
-    end
-
-    def compute_serializer_for_name(name)
-      namespace = owner.name.gsub(/()?\w+Serializer$/, '')
-      serializer_name = name.to_s.demodulize.classify + 'Serializer'
-      serializer_class_name = namespace + serializer_name
-      begin
-        return serializer_class_name.constantize
-      rescue NameError
-        raise "Cannot resolve a serializer class for '#{name}'.  " +
-          "Attempted to find '#{serializer_class_name}'.  " +
-          "You can specify the serializer directly, e.g. '#{relationship_type} #{self.name.to_sym.inspect}, serializer: #{serializer_class_name}'."
-      end
+      @serializers_for_name[name] ||= owner.serializer_for(name)
     end
 
     def record_type_for(record, serialization_params)

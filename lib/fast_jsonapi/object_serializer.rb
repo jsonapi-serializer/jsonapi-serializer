@@ -269,6 +269,19 @@ module FastJsonapi
         )
       end
 
+      def serializer_for(name)
+        namespace = self.name.gsub(/()?\w+Serializer$/, '')
+        serializer_name = name.to_s.demodulize.classify + 'Serializer'
+        serializer_class_name = namespace + serializer_name
+        begin
+          return serializer_class_name.constantize
+        rescue NameError
+          raise NameError, "#{self.name} cannot resolve a serializer class for '#{name}'.  " +
+            "Attempted to find '#{serializer_class_name}'. " +
+            "Consider specifying the serializer directly through options[:serializer]."
+        end
+      end
+
       def compute_id_method_name(custom_id_method_name, id_method_name_from_relationship, polymorphic, serializer, block)
         if block.present? || serializer.is_a?(Proc) || polymorphic
           custom_id_method_name || :id
