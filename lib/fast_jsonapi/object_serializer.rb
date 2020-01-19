@@ -125,6 +125,7 @@ module FastJsonapi
         subclass.uncachable_relationships_to_serialize = uncachable_relationships_to_serialize.dup if uncachable_relationships_to_serialize.present?
         subclass.transform_method = transform_method
         subclass.cache_length = cache_length
+        subclass.cache_versioning = cache_versioning
         subclass.race_condition_ttl = race_condition_ttl
         subclass.data_links = data_links.dup if data_links.present?
         subclass.cached = cached
@@ -178,6 +179,7 @@ module FastJsonapi
       def cache_options(cache_options)
         self.cached = cache_options[:enabled] || false
         self.cache_length = cache_options[:cache_length] || 5.minutes
+        self.cache_versioning = cache_options[:cache_versioning] || false
         self.race_condition_ttl = cache_options[:race_condition_ttl] || 5.seconds
       end
 

@@ -69,5 +69,47 @@ describe FastJsonapi::ObjectSerializer do
       expect(serializable_hash[:data][:attributes][:name]).to eq(previous_name)
       expect(serializable_hash[:data][:relationships][:actors][:data].length).to eq previous_actors.length
     end
+
+    it 'uses cache values for the record with cache versioning when caching version is unchanged' do
+      previous_name = movie.name
+      previous_actors = movie.actors
+
+      movie.cache_version = 'first version'
+
+      CachingMovieSerializerWithCacheVersioning.new(movie).serializable_hash
+
+      movie.name = 'should not match'
+      allow(movie).to receive(:actor_ids).and_return([99])
+
+      expect(previous_name).not_to eq(movie.name)
+      expect(previous_actors).not_to eq(movie.actors)
+
+      serializable_hash = CachingMovieSerializerWithCacheVersioning.new(movie).serializable_hash
+
+      expect(serializable_hash[:data][:attributes][:name]).to eq(previous_name)
+      expect(serializable_hash[:data][:relationships][:actors][:data].length).to eq movie.actors.length
+    end
+
+    it 'uses fresh values for the record with cache versioning when caching version changed' do
+      previous_name = movie.name
+      previous_actors = movie.actors
+
+      movie.cache_version = 'first version'
+
+      CachingMovieSerializerWithCacheVersioning.new(movie).serializable_hash
+
+      movie.name = 'should match'
+      allow(movie).to receive(:actor_ids).and_return([99])
+
+      expect(previous_name).not_to eq(movie.name)
+      expect(previous_actors).not_to eq(movie.actors)
+
+      movie.cache_version = 'second version'
+
+      serializable_hash = CachingMovieSerializerWithCacheVersioning.new(movie).serializable_hash
+
+      expect(serializable_hash[:data][:attributes][:name]).to eq(movie.name)
+      expect(serializable_hash[:data][:relationships][:actors][:data].length).to eq movie.actors.length
+    end
   end
 end

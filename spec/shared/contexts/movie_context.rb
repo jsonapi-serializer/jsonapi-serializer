@@ -10,7 +10,8 @@ RSpec.shared_context 'movie class' do
                     :director,
                     :actor_ids,
                     :owner_id,
-                    :movie_type_id
+                    :movie_type_id,
+                    :cache_version
 
       def actors
         actor_ids.map.with_index do |id, i|
@@ -217,6 +218,17 @@ RSpec.shared_context 'movie class' do
       belongs_to :movie_type
 
       cache_options enabled: true
+    end
+
+    class CachingMovieSerializerWithCacheVersioning
+      include FastJsonapi::ObjectSerializer
+      set_type :movie
+      attributes :name, :release_year
+      has_many :actors
+      belongs_to :owner, record_type: :user
+      belongs_to :movie_type
+
+      cache_options enabled: true, cache_versioning: true
     end
 
     class CachingMovieWithHasManySerializer
