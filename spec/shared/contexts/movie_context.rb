@@ -216,7 +216,7 @@ RSpec.shared_context 'movie class' do
       belongs_to :owner, record_type: :user
       belongs_to :movie_type
 
-      cache_options enabled: true
+      cache_store ActiveSupport::Cache::MemoryStore.new
     end
 
     class CachingMovieWithHasManySerializer
@@ -227,7 +227,7 @@ RSpec.shared_context 'movie class' do
       belongs_to :owner, record_type: :user
       belongs_to :movie_type
 
-      cache_options enabled: true
+      cache_store ActiveSupport::Cache::MemoryStore.new
     end
 
     class ActorSerializer

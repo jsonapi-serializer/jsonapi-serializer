@@ -124,10 +124,9 @@ module FastJsonapi
         subclass.cachable_relationships_to_serialize = cachable_relationships_to_serialize.dup if cachable_relationships_to_serialize.present?
         subclass.uncachable_relationships_to_serialize = uncachable_relationships_to_serialize.dup if uncachable_relationships_to_serialize.present?
         subclass.transform_method = transform_method
-        subclass.cache_length = cache_length
-        subclass.race_condition_ttl = race_condition_ttl
         subclass.data_links = data_links.dup if data_links.present?
         subclass.cached = cached
+        subclass.cache_store_instance = cache_store_instance
         subclass.set_type(subclass.reflected_record_type) if subclass.reflected_record_type
         subclass.meta_to_serialize = meta_to_serialize
         subclass.record_id = record_id
@@ -175,10 +174,9 @@ module FastJsonapi
         self.record_id = block || id_name
       end
 
-      def cache_options(cache_options)
-        self.cached = cache_options[:enabled] || false
-        self.cache_length = cache_options[:cache_length] || 5.minutes
-        self.race_condition_ttl = cache_options[:race_condition_ttl] || 5.seconds
+      def cache_store(store)
+        self.cached = store.present?
+        self.cache_store_instance = store
       end
 
       def attributes(*attributes_list, &block)

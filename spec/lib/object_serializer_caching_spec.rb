@@ -4,12 +4,6 @@ describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   context 'when caching has_many' do
-    before(:each) do
-      rails = OpenStruct.new
-      rails.cache = ActiveSupport::Cache::MemoryStore.new
-      stub_const('Rails', rails)
-    end
-
     it 'returns correct hash when serializable_hash is called' do
       options = {}
       options[:meta] = { total: 2 }
