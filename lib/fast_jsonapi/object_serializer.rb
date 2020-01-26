@@ -125,7 +125,6 @@ module FastJsonapi
         subclass.uncachable_relationships_to_serialize = uncachable_relationships_to_serialize.dup if uncachable_relationships_to_serialize.present?
         subclass.transform_method = transform_method
         subclass.data_links = data_links.dup if data_links.present?
-        subclass.cached = cached
         subclass.cache_store_instance = cache_store_instance
         subclass.set_type(subclass.reflected_record_type) if subclass.reflected_record_type
         subclass.meta_to_serialize = meta_to_serialize
@@ -174,9 +173,13 @@ module FastJsonapi
         self.record_id = block || id_name
       end
 
-      def cache_store(store)
-        self.cached = store.present?
-        self.cache_store_instance = store
+      def cache_options(cache_options)
+        deprecated_options = %i[enabled cache_length race_condition_ttl]
+        if deprecated_options.any? { |key| cache_options.key?(key) }
+          raise ArgumentError, "#{deprecated_options.to_sentence} are deprecated cache options and have no effect anymore. Please specify your own cache with `store: store_instance` instead."
+        end
+
+        self.cache_store_instance = cache_options[:store]
       end
 
       def attributes(*attributes_list, &block)
