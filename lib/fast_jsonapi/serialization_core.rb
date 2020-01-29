@@ -19,6 +19,7 @@ module FastJsonapi
                       :record_type,
                       :record_id,
                       :cache_store_instance,
+                      :cache_store_options,
                       :data_links,
                       :meta_to_serialize
       end
@@ -66,7 +67,7 @@ module FastJsonapi
 
       def record_hash(record, fieldset, includes_list, params = {})
         if cache_store_instance
-          record_hash = cache_store_instance.fetch(record) do
+          record_hash = cache_store_instance.fetch(record, *cache_store_options) do
             temp_hash = id_hash(id_from_record(record, params), record_type, true)
             temp_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
             temp_hash[:relationships] = {}
