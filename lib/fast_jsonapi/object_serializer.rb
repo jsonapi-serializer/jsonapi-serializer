@@ -175,23 +175,18 @@ module FastJsonapi
       end
 
       def cache_options(cache_options)
-        cache_options = cache_options.dup
-
         if cache_options.key?(:store)
-          self.cache_store_instance = cache_options.delete(:store)
-        elsif !cache_store_instance
+          self.cache_store_instance = cache_options[:store]
+        else
           warn('DEPRECATION WARNING: `store:` is required, we will default to `Rails.cache`.')
           self.cache_store_instance =  Rails.cache
         end
 
         %i[enabled cache_length].each do |key|
-          if cache_options.key?(key)
-            warn("DEPRECATION WARNING: `#{key}:` is a deprecated cache option and has no effect anymore.")
-            cache_options.delete(key)
-          end
+          warn("DEPRECATION WARNING: `#{key}:` is a deprecated cache option and has no effect anymore.") if cache_options.key?(key)
         end
 
-        self.cache_store_options = (cache_store_options || {}).merge(cache_options)
+        self.cache_store_options = cache_options.except(:store, :enabled, :cache_length)
       end
 
       def attributes(*attributes_list, &block)
