@@ -126,7 +126,7 @@ module FastJsonapi
         subclass.transform_method = transform_method
         subclass.data_links = data_links.dup if data_links.present?
         subclass.cache_store_instance = cache_store_instance
-        subclass.cache_store_options = cache_store_options.dup if cache_store_options.present?
+        subclass.cache_store_options = cache_store_options
         subclass.set_type(subclass.reflected_record_type) if subclass.reflected_record_type
         subclass.meta_to_serialize = meta_to_serialize
         subclass.record_id = record_id
