@@ -1,16 +1,15 @@
 # Fast JSON API
 
-[![Build Status](https://travis-ci.org/Netflix/fast_jsonapi.svg?branch=master)](https://travis-ci.org/Netflix/fast_jsonapi)
-
 A lightning fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
-
-Note: this gem deals only with implementing the JSON:API spec. If your API
-responses are not formatted according to the JSON:API spec, this library will
-not work for you.
 
 # Performance Comparison
 
-We compare serialization times with Active Model Serializer as part of RSpec performance tests included on this library. We want to ensure that with every change on this library, serialization time is at least `25 times` faster than Active Model Serializers on up to current benchmark of 1000 records. Please read the [performance document](https://github.com/Netflix/fast_jsonapi/blob/master/performance_methodology.md) for any questions related to methodology.
+We compare serialization times with Active Model Serializer as part of RSpec
+performance tests included on this library. We want to ensure that with every
+change on this library, serialization time is about _25 times_ faster than
+the ActiveModelSerializers on up to a current benchmark of 1000 records. Please
+read the performance article in the `docs` folder for any questions related to
+methodology.
 
 ## Benchmark times for 250 records
 
@@ -315,7 +314,7 @@ end
 
 ### Compound Document
 
-Support for top-level and nested included associations through ` options[:include] `.
+Support for top-level and nested included associations through `options[:include]`.
 
 ```ruby
 options = {}
@@ -590,16 +589,16 @@ end
 
 Option | Purpose | Example
 ------------ | ------------- | -------------
-set_type | Type name of Object | ```set_type :movie ```
-key | Key of Object | ```belongs_to :owner, key: :user ```
-set_id | ID of Object | ```set_id :owner_id ``` or ```set_id { \|record, params\| params[:admin] ? record.id : "#{record.name.downcase}-#{record.id}" }```
-cache_options | Hash to enable caching and set cache length | ```cache_options enabled: true, cache_length: 12.hours, race_condition_ttl: 10.seconds```
-id_method_name | Set custom method name to get ID of an object (If block is provided for the relationship, `id_method_name` is invoked on the return value of the block instead of the resource object) | ```has_many :locations, id_method_name: :place_ids ```
-object_method_name | Set custom method name to get related objects | ```has_many :locations, object_method_name: :places ```
-record_type | Set custom Object Type for a relationship | ```belongs_to :owner, record_type: :user```
-serializer | Set custom Serializer for a relationship | ```has_many :actors, serializer: :custom_actor```, ```has_many :actors, serializer: MyApp::Api::V1::ActorSerializer```, or ```has_many :actors, serializer -> (object, params) { (return a serializer class) }```
-polymorphic | Allows different record types for a polymorphic association | ```has_many :targets, polymorphic: true```
-polymorphic | Sets custom record types for each object class in a polymorphic association | ```has_many :targets, polymorphic: { Person => :person, Group => :group }```
+set_type | Type name of Object | `set_type :movie`
+key | Key of Object | `belongs_to :owner, key: :user`
+set_id | ID of Object | `set_id :owner_id` or `set_id { \|record, params\| params[:admin] ? record.id : "#{record.name.downcase}-#{record.id}" }`
+cache_options | Hash to enable caching and set cache length | `cache_options enabled: true, cache_length: 12.hours, race_condition_ttl: 10.seconds`
+id_method_name | Set custom method name to get ID of an object (If block is provided for the relationship, `id_method_name` is invoked on the return value of the block instead of the resource object) | `has_many :locations, id_method_name: :place_ids`
+object_method_name | Set custom method name to get related objects | `has_many :locations, object_method_name: :places`
+record_type | Set custom Object Type for a relationship | `belongs_to :owner, record_type: :user`
+serializer | Set custom Serializer for a relationship | `has_many :actors, serializer: :custom_actor`, `has_many :actors, serializer: MyApp::Api::V1::ActorSerializer`, or `has_many :actors, serializer -> (object, params) { (return a serializer class) }`
+polymorphic | Allows different record types for a polymorphic association | `has_many :targets, polymorphic: true`
+polymorphic | Sets custom record types for each object class in a polymorphic association | `has_many :targets, polymorphic: { Person => :person, Group => :group }`
 
 ### Instrumentation
 
@@ -632,11 +631,9 @@ require 'fast_jsonapi/instrumentation/skylight/normalizers/serializable_hash'
 require 'fast_jsonapi/instrumentation/skylight/normalizers/serialized_json'
 ```
 
-## Contributing
-Please see [contribution check](https://github.com/Netflix/fast_jsonapi/blob/master/CONTRIBUTING.md) for more details on contributing
-
 ### Running Tests
-We use [RSpec](http://rspec.info/) for testing. We have unit tests, functional tests and performance tests. To run tests use the following command:
+The project has and requires unit tests, functional tests and performance
+tests. To run tests use the following command:
 
 ```bash
 rspec
@@ -653,3 +650,12 @@ To run tests only performance tests:
 ```bash
 rspec spec --tag performance:true
 ```
+
+## Contributing
+
+Please follow the instructions we provide as part of the issue and
+pull request creation processes.
+
+This project is intended to be a safe, welcoming space for collaboration, and
+contributors are expected to adhere to the
+[Contributor Covenant](http://contributor-covenant.org) code of conduct.
