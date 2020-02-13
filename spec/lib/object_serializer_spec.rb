@@ -451,6 +451,22 @@ describe FastJsonapi::ObjectSerializer do
     end
   end
 
+  context 'when optional attributes are determined by record data with a lambda' do
+    it 'returns optional attribute when attribute is included' do
+      movie.release_year = 2001
+      json = MovieOptionalRecordDataWithLambdaSerializer.new(movie).serialized_json
+      serializable_hash = JSON.parse(json)
+      expect(serializable_hash['data']['attributes']['release_year']).to eq movie.release_year
+    end
+
+    it "doesn't return optional attribute when attribute is not included" do
+      movie.release_year = 1970
+      json = MovieOptionalRecordDataWithLambdaSerializer.new(movie).serialized_json
+      serializable_hash = JSON.parse(json)
+      expect(serializable_hash['data']['attributes'].has_key?('release_year')).to be_falsey
+    end
+  end
+
   context 'when optional attributes are determined by params data' do
     it 'returns optional attribute when attribute is included' do
       movie.director = 'steven spielberg'
@@ -477,6 +493,38 @@ describe FastJsonapi::ObjectSerializer do
     context "when relationship is not included" do
       let(:json) {
         MovieOptionalRelationshipSerializer.new(movie, options).serialized_json
+      }
+      let(:options) {
+        {}
+      }
+      let(:serializable_hash) {
+        JSON.parse(json)
+      }
+
+      it "doesn't return optional relationship" do
+        movie.actor_ids = []
+        expect(serializable_hash['data']['relationships'].has_key?('actors')).to be_falsey
+      end
+
+      it "doesn't include optional relationship" do
+        movie.actor_ids = []
+        options[:include] = [:actors]
+        expect(serializable_hash['included']).to be_blank
+      end
+
+    end
+  end
+
+  context 'when optional relationships are determined by record data with a lambda' do
+    it 'returns optional relationship when relationship is included' do
+      json = MovieOptionalRelationshipWithLambdaSerializer.new(movie).serialized_json
+      serializable_hash = JSON.parse(json)
+      expect(serializable_hash['data']['relationships'].has_key?('actors')).to be_truthy
+    end
+
+    context "when relationship is not included" do
+      let(:json) {
+        MovieOptionalRelationshipWithLambdaSerializer.new(movie, options).serialized_json
       }
       let(:options) {
         {}

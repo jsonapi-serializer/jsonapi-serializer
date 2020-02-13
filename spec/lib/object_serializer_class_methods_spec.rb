@@ -354,6 +354,24 @@ describe FastJsonapi::ObjectSerializer do
         end
       end
     end
+
+    context 'with a lambda' do
+      let(:params) { { prefix: 'movie' } }
+
+      before do
+        MovieSerializer.set_id ->(record) { "#{params[:prefix]}-#{record.owner_id}" }
+      end
+
+      after do
+        MovieSerializer.set_id nil
+      end
+
+      let(:resource) { movie }
+
+      it 'returns correct hash which id equals movie-id' do
+        expect(serializable_hash[:data][:id]).to eq "movie-#{movie.owner_id}"
+      end
+    end
   end
 
   describe '#use_hyphen' do
@@ -412,22 +430,40 @@ describe FastJsonapi::ObjectSerializer do
   describe '#meta' do
     subject(:serializable_hash) { MovieSerializer.new(movie).serializable_hash }
 
-    before do
-      movie.release_year = 2008
-      MovieSerializer.meta do |movie|
-        {
-          years_since_release: year_since_release_calculator(movie.release_year)
-        }
+    context 'with block' do
+      before do
+        movie.release_year = 2008
+        MovieSerializer.meta do |movie|
+          {
+            years_since_release: year_since_release_calculator(movie.release_year)
+          }
+        end
+      end
+
+      after do
+        movie.release_year = nil
+        MovieSerializer.meta_to_serialize = nil
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
       end
     end
 
-    after do
-      movie.release_year = nil
-      MovieSerializer.meta_to_serialize = nil
-    end
+    context 'with lambda' do
+      before do
+        movie.release_year = 2008
+        MovieSerializer.meta ->(movie) { { years_since_release: year_since_release_calculator(movie.release_year) } }
+      end
 
-    it 'returns correct hash when serializable_hash is called' do
-      expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
+      after do
+        movie.release_year = nil
+        MovieSerializer.meta_to_serialize = nil
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
+      end
     end
 
     private
@@ -521,6 +557,26 @@ describe FastJsonapi::ObjectSerializer do
 
       context 'when the link is not provided' do
         let(:params) { { params: {} } }
+        it 'does not include the link' do
+          expect(downloadable_serializable_hash[:data][:links]).to_not have_key(:download)
+        end
+      end
+    end
+
+    describe 'optional links with a lambda' do
+      subject(:downloadable_serializable_hash) { OptionalDownloadableMovieWithLambdaSerializer.new(movie).serializable_hash }
+
+      context 'when the link should be provided' do
+        before { movie.release_year = 2001 }
+
+        it 'includes the link' do
+          expect(downloadable_serializable_hash[:data][:links][:download]).to eq '/download/232'
+        end
+      end
+
+      context 'when the link should not be provided' do
+        before { movie.release_year = 1970 }
+
         it 'does not include the link' do
           expect(downloadable_serializable_hash[:data][:links]).to_not have_key(:download)
         end
