@@ -190,10 +190,10 @@ module FastJsonapi
 
       # FIXME: remove this method once deprecated cache_options are not supported anymore
       def deprecated_cache_options(cache_options)
-        warn('DEPRECATION WARNING: `store:` is a required cache option, we will default to `Rails.cache` for now.')
+        warn('DEPRECATION WARNING: `store:` is a required cache option, we will default to `Rails.cache` for now. See https://github.com/fast-jsonapi/fast_jsonapi#caching for more information.')
 
         %i[enabled cache_length].select { |key| cache_options.key?(key) }.each do |key|
-          warn("DEPRECATION WARNING: `#{key}` is a deprecated cache option and will have no effect soon. See <link to docs>")
+          warn("DEPRECATION WARNING: `#{key}` is a deprecated cache option and will have no effect soon. See https://github.com/fast-jsonapi/fast_jsonapi#caching for more information.")
         end
 
         self.cache_store_instance = cache_options[:enabled] ? Rails.cache : nil
@@ -202,7 +202,6 @@ module FastJsonapi
           race_condition_ttl: cache_options[:race_condition_ttl] || 5.seconds
         }
       end
-
 
       def attributes(*attributes_list, &block)
         attributes_list = attributes_list.first if attributes_list.first.class.is_a?(Array)
