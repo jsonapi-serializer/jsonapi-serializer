@@ -62,7 +62,7 @@ module FastJsonapi
       end
 
       def meta_hash(record, params = {})
-        meta_to_serialize.call(record, params)
+        FastJsonapi.call_proc(meta_to_serialize, record, params)
       end
 
       def record_hash(record, fieldset, includes_list, params = {})
@@ -89,7 +89,7 @@ module FastJsonapi
       end
 
       def id_from_record(record, params)
-        return record_id.call(record, params) if record_id.is_a?(Proc)
+        return FastJsonapi.call_proc(record_id, record, params) if record_id.is_a?(Proc)
         return record.send(record_id) if record_id
         raise MandatoryField, 'id is a mandatory field in the jsonapi spec' unless record.respond_to?(:id)
         record.id

@@ -57,7 +57,7 @@ module FastJsonapi
 
     def include_relationship?(record, serialization_params)
       if conditional_proc.present?
-        conditional_proc.call(record, serialization_params)
+        FastJsonapi.call_proc(conditional_proc, record, serialization_params)
       else
         true
       end
@@ -73,7 +73,7 @@ module FastJsonapi
         serializer_for_name(name)
 
       elsif serializer.is_a?(Proc)
-        serializer.arity.abs == 1 ? serializer.call(record) : serializer.call(record, serialization_params)
+        FastJsonapi.call_proc(serializer, record, serialization_params)
 
       elsif object_block
         serializer_for_name(record.class.name)
