@@ -128,6 +128,25 @@ describe FastJsonapi::ObjectSerializer do
     end
   end
 
+  describe '#has_many with &:proc' do
+    before do
+      MovieSerializer.has_many :stars, &:actors
+    end
+
+    after do
+      MovieSerializer.relationships_to_serialize.delete(:stars)
+    end
+
+    subject(:hash) { MovieSerializer.new(movie).serializable_hash }
+
+    it 'returns correct hash' do
+      expect(hash[:data][:relationships][:stars][:data].length).to eq(3)
+      expect(hash[:data][:relationships][:stars][:data][0]).to eq({ id: '1', type: :actor })
+      expect(hash[:data][:relationships][:stars][:data][1]).to eq({ id: '2', type: :actor })
+      expect(hash[:data][:relationships][:stars][:data][2]).to eq({ id: '3', type: :actor })
+    end
+  end
+
   describe '#belongs_to' do
     subject(:relationship) { MovieSerializer.relationships_to_serialize[:area] }
 
@@ -200,6 +219,22 @@ describe FastJsonapi::ObjectSerializer do
     end
   end
 
+  describe '#belongs_to with &:proc' do
+    before do
+      MovieSerializer.belongs_to :user, &:owner
+    end
+
+    after do
+      MovieSerializer.relationships_to_serialize.delete(:user)
+    end
+
+    subject(:hash) { MovieSerializer.new(movie).serializable_hash }
+
+    it 'returns correct hash' do
+      expect(hash[:data][:relationships][:user][:data]).to eq({ id: '3', type: :owner })
+    end
+  end
+
   describe '#has_one' do
     subject(:relationship) { MovieSerializer.relationships_to_serialize[:area] }
 
@@ -237,6 +272,22 @@ describe FastJsonapi::ObjectSerializer do
       let(:relationship_serializer) { AreaSerializer }
 
       it_behaves_like 'returning correct relationship hash', :area_id, :area
+    end
+  end
+
+  describe '#has_one with &:proc' do
+    before do
+      MovieSerializer.has_one :user, &:owner
+    end
+
+    after do
+      MovieSerializer.relationships_to_serialize.delete(:user)
+    end
+
+    subject(:hash) { MovieSerializer.new(movie).serializable_hash }
+
+    it 'returns correct hash' do
+      expect(hash[:data][:relationships][:user][:data]).to eq({ id: '3', type: :owner })
     end
   end
 
