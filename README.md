@@ -361,15 +361,29 @@ was introduced to be able to have precise control this behavior
 - `false` will always treat input resource as *single object*
 
 ### Caching
-Requires a `cache_key` method be defined on model:
+
+To enable caching, use `cache_options store: <cache_store>`:
 
 ```ruby
 class MovieSerializer
   include FastJsonapi::ObjectSerializer
-  set_type :movie  # optional
-  cache_options enabled: true, cache_length: 12.hours
-  attributes :name, :year
+
+  # use rails cache with a separate namespace and fixed expiry
+  cache_options store: Rails.cache, namespace: 'fast-jsonapi', expires_in: 1.hour
 end
+```
+
+`store` is required can be anything that implements a
+`#fetch(record, **options, &block)` method:
+
+- `record` is the record that is currently serialized
+- `options` is everything that was passed to `cache_options` except `store`, so it can be everyhing the cache store supports
+- `&block` should be executed to fetch new data if cache is empty
+
+So for the example above, FastJsonapi will call the cache instance like this:
+
+```ruby
+Rails.cache.fetch(record, namespace: 'fast-jsonapi, expires_in: 1.hour) { ... }
 ```
 
 ### Params
@@ -545,7 +559,7 @@ Option | Purpose | Example
 set_type | Type name of Object | `set_type :movie`
 key | Key of Object | `belongs_to :owner, key: :user`
 set_id | ID of Object | `set_id :owner_id` or `set_id { \|record, params\| params[:admin] ? record.id : "#{record.name.downcase}-#{record.id}" }`
-cache_options | Hash to enable caching and set cache length | `cache_options enabled: true, cache_length: 12.hours, race_condition_ttl: 10.seconds`
+cache_options | Hash with store to enable caching and optional further cache options | `cache_options store: ActiveSupport::Cache::MemoryStore.new, expires_in: 5.minutes`
 id_method_name | Set custom method name to get ID of an object (If block is provided for the relationship, `id_method_name` is invoked on the return value of the block instead of the resource object) | `has_many :locations, id_method_name: :place_ids`
 object_method_name | Set custom method name to get related objects | `has_many :locations, object_method_name: :places`
 record_type | Set custom Object Type for a relationship | `belongs_to :owner, record_type: :user`
