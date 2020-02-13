@@ -51,7 +51,7 @@ module FastJsonapi
     end
 
     def fetch_associated_object(record, params)
-      return object_block.call(record, params) unless object_block.nil?
+      return FastJsonapi.call_proc(object_block, record, params) unless object_block.nil?
       record.send(object_method_name)
     end
 
@@ -129,7 +129,7 @@ module FastJsonapi
 
     def fetch_id(record, params)
       if object_block.present?
-        object = object_block.call(record, params)
+        object = FastJsonapi.call_proc(object_block, record, params)
         return object.map { |item| item.public_send(id_method_name) } if object.respond_to? :map
         return object.try(id_method_name)
       end
@@ -208,6 +208,5 @@ module FastJsonapi
       return run_key_transform(record_type) if record_type
       return run_key_transform(@static_serializer.record_type) if @static_serializer
     end
-
   end
 end
