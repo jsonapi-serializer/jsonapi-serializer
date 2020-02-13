@@ -175,19 +175,34 @@ module FastJsonapi
       end
 
       def cache_options(cache_options)
-        if cache_options.key?(:store)
-          self.cache_store_instance = cache_options[:store]
-        else
-          warn('DEPRECATION WARNING: `store:` is required, we will default to `Rails.cache`.')
-          self.cache_store_instance =  Rails.cache
+        # FIXME: remove this if block once deprecated cache_options are not supported anymore
+        if !cache_options.key?(:store)
+          # fall back to old, deprecated behaviour because no store was passed.
+          # we assume the user explicitly wants new behaviour if he passed a
+          # store because this is the new syntax.
+          deprecated_cache_options(cache_options)
+          return
         end
 
-        %i[enabled cache_length].each do |key|
-          warn("DEPRECATION WARNING: `#{key}:` is a deprecated cache option and has no effect anymore.") if cache_options.key?(key)
-        end
-
-        self.cache_store_options = cache_options.except(:store, :enabled, :cache_length)
+        self.cache_store_instance = cache_options[:store]
+        self.cache_store_options = cache_options.except(:store)
       end
+
+      # FIXME: remove this method once deprecated cache_options are not supported anymore
+      def deprecated_cache_options(cache_options)
+        warn('DEPRECATION WARNING: `store:` is a required cache option, we will default to `Rails.cache` for now.')
+
+        %i[enabled cache_length].select { |key| cache_options.key?(key) }.each do |key|
+          warn("DEPRECATION WARNING: `#{key}` is a deprecated cache option and will have no effect soon. See <link to docs>")
+        end
+
+        self.cache_store_instance = cache_options[:enabled] ? Rails.cache : nil
+        self.cache_store_options = {
+          expires_in: cache_options[:cache_length] || 5.minutes,
+          race_condition_ttl: cache_options[:race_condition_ttl] || 5.seconds
+        }
+      end
+
 
       def attributes(*attributes_list, &block)
         attributes_list = attributes_list.first if attributes_list.first.class.is_a?(Array)
