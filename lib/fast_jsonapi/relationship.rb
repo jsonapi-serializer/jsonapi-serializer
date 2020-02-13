@@ -156,9 +156,9 @@ module FastJsonapi
 
     def initialize_static_serializer
       return if @initialized_static_serializer
-      @initialized_static_serializer = true
       @static_serializer = compute_static_serializer
       @static_record_type = compute_static_record_type
+      @initialized_static_serializer = true
     end
 
     def compute_static_serializer
