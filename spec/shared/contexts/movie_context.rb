@@ -167,6 +167,30 @@ RSpec.shared_context 'movie class' do
       attr_accessor :id
     end
 
+    class Theater
+      attr_accessor :id, :name, :snacks
+    end
+
+    class Popcorn
+      attr_accessor :id, :supplier_id
+
+      def supplier
+        Supplier.new.tap do |s|
+          s.id = supplier_id
+        end
+      end
+    end
+
+    class Candy
+      attr_accessor :id, :supplier_id
+
+      def supplier
+        Supplier.new.tap do |s|
+          s.id = supplier_id
+        end
+      end
+    end
+
     class OwnerSerializer
       include FastJsonapi::ObjectSerializer
     end
@@ -309,6 +333,24 @@ RSpec.shared_context 'movie class' do
     class AccountSerializer
       include FastJsonapi::ObjectSerializer
       set_type :account
+      belongs_to :supplier
+    end
+
+    class TheaterSerializer
+      include FastJsonapi::ObjectSerializer
+      set_type :theater
+      has_many :snacks, polymorphic: true
+    end
+
+    class PopcornSerializer
+      include FastJsonapi::ObjectSerializer
+      set_type :popcorn
+      belongs_to :supplier
+    end
+
+    class CandySerializer
+      include FastJsonapi::ObjectSerializer
+      set_type :candy
       belongs_to :supplier
     end
 
@@ -474,6 +516,22 @@ RSpec.shared_context 'movie class' do
     s.id = 1
     s.account_id = 1
     s
+  end
+
+  let(:theater) do
+    t = Theater.new
+    t.id = 1
+    t.snacks = [
+      Popcorn.new.tap do |p|
+        p.id = 3
+        p.supplier_id = 4
+      end,
+      Candy.new.tap do |p|
+        p.id = 7
+        p.supplier_id = 5
+      end
+    ]
+    t
   end
 
   def build_movies(count)

@@ -60,7 +60,7 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     it 'serializes known included records only once' do
-      includes_list = [:actors]
+      includes_list = { actors: {} }
       known_included_objects = {}
       included_records = []
       [movie, movie].each do |record|
