@@ -55,8 +55,15 @@ describe FastJsonapi::ObjectSerializer do
     end
   end
 
-  it 'fails validation if an included item is not a relationship on the object' do
-    expect { MovieSerializer.new(movie, include: [:foo]).serializable_hash }.to raise_error(ArgumentError)
-    expect { MovieSerializer.new(movie, include: { actors: :foo }).serializable_hash }.to raise_error(ArgumentError)
+  describe 'validation' do
+    it 'raises an exception if an included item is not a relationship on the object' do
+      expect { MovieSerializer.new(movie, include: [:foo]).serializable_hash }.to raise_error(FastJsonapi::InvalidIncludeError)
+      expect { MovieSerializer.new(movie, include: { actors: :foo }).serializable_hash }.to raise_error(FastJsonapi::InvalidIncludeError)
+    end
+
+    it 'properly validates dynamic (e.g. polymorphic) relationships' do
+      expect { TheaterSerializer.new(theater, include: { snacks: :supplier }).serializable_hash }.to_not raise_error
+      expect { TheaterSerializer.new(theater, include: { snacks: :foo }).serializable_hash }.to raise_error(FastJsonapi::InvalidIncludeError)
+    end
   end
 end

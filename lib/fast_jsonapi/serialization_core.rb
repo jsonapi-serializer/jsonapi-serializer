@@ -2,6 +2,7 @@
 
 require 'active_support/concern'
 require 'fast_jsonapi/multi_to_json'
+require 'fast_jsonapi/errors'
 
 module FastJsonapi
   MandatoryField = Class.new(StandardError)
@@ -107,7 +108,7 @@ module FastJsonapi
 
         includes_list.each_with_object([]) do |(item, subitems), included_records|
           relationship_item = relationships_to_serialize[item]
-          raise ArgumentError, "Could not find included relationship '#{item}' on #{self.class.name}" if relationship_item.nil?
+          raise FastJsonapi::InvalidIncludeError, "Could not find included relationship '#{item}' on #{self.class.name}" if relationship_item.nil?
           next unless relationship_item.include_relationship?(record, params)
           unless relationship_item.polymorphic.is_a?(Hash)
             record_type = relationship_item.record_type
