@@ -54,4 +54,9 @@ describe FastJsonapi::ObjectSerializer do
       expect(has_included_type?(hash, :advertising_campaign)).to eq true
     end
   end
+
+  it 'fails validation if an included item is not a relationship on the object' do
+    expect { MovieSerializer.new(movie, include: [:foo]).serializable_hash }.to raise_error(ArgumentError)
+    expect { MovieSerializer.new(movie, include: { actors: :foo }).serializable_hash }.to raise_error(ArgumentError)
+  end
 end
