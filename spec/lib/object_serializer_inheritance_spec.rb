@@ -51,6 +51,15 @@ describe FastJsonapi::ObjectSerializer do
     has_one :photo
   end
 
+  class Address
+    attr_accessor :street, :city, :state, :postal_code
+  end
+
+  class AddressSerializer
+    include FastJsonapi::ObjectSerializer
+    attributes :street, :city, :state, :postal_code
+  end
+
   class Photo
     attr_accessor :id, :user_id
   end
@@ -73,6 +82,11 @@ describe FastJsonapi::ObjectSerializer do
     attr_accessor :id, :employee_id
   end
 
+  class EmployeeAccountSerializer
+    include FastJsonapi::ObjectSerializer
+    belongs_to :employee
+  end
+
   class Employee < User
     attr_accessor :id, :location, :compensation
 
@@ -93,7 +107,7 @@ describe FastJsonapi::ObjectSerializer do
     attributes :location
     attributes :compensation
 
-    has_one :account
+    has_one :account, serializer: EmployeeAccountSerializer
   end
 
   it 'sets the correct record type' do
