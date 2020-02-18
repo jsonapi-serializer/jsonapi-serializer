@@ -127,7 +127,7 @@ hash = MovieSerializer.new(movie).serializable_hash
 
 #### Return Serialized JSON
 ```ruby
-json_string = MovieSerializer.new(movie).serializable_hash_hash.to_json
+json_string = MovieSerializer.new(movie).serializable_hash.to_json
 ```
 
 #### Serialized Output
