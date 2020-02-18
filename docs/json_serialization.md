@@ -18,7 +18,7 @@ class BaseSerializer
   def to_json
     Oj.dump(serializable_hash)
   end
-  alias_method :serialized_json :to_json
+  alias_method :serialized_json, :to_json
 end
 
 class MovieSerializer < BaseSerializer
