@@ -222,7 +222,7 @@ RSpec.shared_context 'movie class' do
       belongs_to :owner, record_type: :user
       belongs_to :movie_type
 
-      cache_options enabled: true
+      cache_options store: ActiveSupport::Cache::MemoryStore.new, expires_in: 5.minutes
     end
 
     class CachingMovieWithHasManySerializer
@@ -233,7 +233,7 @@ RSpec.shared_context 'movie class' do
       belongs_to :owner, record_type: :user
       belongs_to :movie_type
 
-      cache_options enabled: true
+      cache_options store: ActiveSupport::Cache::MemoryStore.new, namespace: 'fast-jsonapi'
     end
 
     class ActorSerializer

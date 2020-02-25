@@ -4,12 +4,6 @@ describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   context 'when caching has_many' do
-    before(:each) do
-      rails = OpenStruct.new
-      rails.cache = ActiveSupport::Cache::MemoryStore.new
-      stub_const('Rails', rails)
-    end
-
     it 'returns correct hash when serializable_hash is called' do
       options = {}
       options[:meta] = { total: 2 }
@@ -68,6 +62,46 @@ describe FastJsonapi::ObjectSerializer do
 
       expect(serializable_hash[:data][:attributes][:name]).to eq(previous_name)
       expect(serializable_hash[:data][:relationships][:actors][:data].length).to eq previous_actors.length
+    end
+  end
+
+  # FIXME: remove this if block once deprecated cache_options are not supported anymore
+  context 'when using deprecated cache options' do
+    let(:deprecated_caching_movie_serializer_class) do
+      rails = OpenStruct.new
+      rails.cache = ActiveSupport::Cache::MemoryStore.new
+      stub_const('Rails', rails)
+
+      Class.new do
+        def self.name
+          'DeprecatedCachingMovieSerializer'
+        end
+
+        include FastJsonapi::ObjectSerializer
+        set_type :movie
+        attributes :name, :release_year
+        has_many :actors
+        belongs_to :owner, record_type: :user
+        belongs_to :movie_type
+
+        cache_options enabled: true
+      end
+    end
+
+    it 'uses cached values for the record' do
+      previous_name = movie.name
+      previous_actors = movie.actors
+      deprecated_caching_movie_serializer_class.new(movie).serializable_hash
+
+      movie.name = 'should not match'
+      allow(movie).to receive(:actor_ids).and_return([99])
+
+      expect(previous_name).not_to eq(movie.name)
+      expect(previous_actors).not_to eq(movie.actors)
+      serializable_hash = deprecated_caching_movie_serializer_class.new(movie).serializable_hash
+
+      expect(serializable_hash[:data][:attributes][:name]).to eq(previous_name)
+      expect(serializable_hash[:data][:relationships][:actors][:data].length).to eq movie.actors.length
     end
   end
 end
