@@ -418,6 +418,7 @@ describe FastJsonapi::ObjectSerializer do
 
       after do
         MovieSerializer.attributes_to_serialize.delete(:released_in_year)
+        MovieSerializer.attributes_to_serialize.delete(:name)
       end
 
       it 'returns correct hash when serializable_hash is called' do
@@ -435,6 +436,7 @@ describe FastJsonapi::ObjectSerializer do
 
       after do
         MovieSerializer.attributes_to_serialize.delete(:released_in_year)
+        MovieSerializer.attributes_to_serialize.delete(:name)
       end
 
       it 'returns correct hash when serializable_hash is called' do
