@@ -213,6 +213,9 @@ module FastJsonapi
         options = attributes_list.last.is_a?(Hash) ? attributes_list.pop : {}
         self.attributes_to_serialize = {} if self.attributes_to_serialize.nil?
 
+        # to support calling `attribute` with a lambda, e.g `attribute :key, ->(object) { ... }`
+        block = attributes_list.pop if attributes_list.last.is_a?(Proc)
+
         attributes_list.each do |attr_name|
           method_name = attr_name
           key = run_key_transform(method_name)
