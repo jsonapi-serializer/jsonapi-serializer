@@ -20,6 +20,7 @@ module FastJsonapi
                       :cache_store_instance,
                       :cache_store_options,
                       :data_links,
+                      :meta_core_to_serialize,
                       :meta_to_serialize
       end
     end
@@ -61,7 +62,16 @@ module FastJsonapi
       end
 
       def meta_hash(record, params = {})
-        FastJsonapi.call_proc(meta_to_serialize, record, params)
+        return if !meta_core_to_serialize && !meta_to_serialize
+
+        base = meta_core_to_serialize ? FastJsonapi.call_proc(meta_core_to_serialize, record, params) : {}
+        return base unless meta_to_serialize
+
+        meta_to_serialize.each do |(_k, attribute)|
+          attribute.serialize(record, params, base)
+        end
+
+        base
       end
 
       def record_hash(record, fieldset, includes_list, params = {})
@@ -75,14 +85,20 @@ module FastJsonapi
             temp_hash
           end
           record_hash[:relationships] = record_hash[:relationships].merge(relationships_hash(record, uncachable_relationships_to_serialize, fieldset, includes_list, params)) if uncachable_relationships_to_serialize.present?
-          record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
+
+          cur_meta = meta_hash(record, params)
+          record_hash[:meta] = cur_meta if cur_meta.present?
+
           record_hash
         else
           record_hash = id_hash(id_from_record(record, params), record_type, true)
           record_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
           record_hash[:relationships] = relationships_hash(record, nil, fieldset, includes_list, params) if relationships_to_serialize.present?
           record_hash[:links] = links_hash(record, params) if data_links.present?
-          record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
+
+          cur_meta = meta_hash(record, params)
+          record_hash[:meta] = cur_meta if cur_meta.present?
+
           record_hash
         end
       end

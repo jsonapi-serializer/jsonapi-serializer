@@ -449,19 +449,23 @@ describe FastJsonapi::ObjectSerializer do
   describe '#meta' do
     subject(:serializable_hash) { MovieSerializer.new(movie).serializable_hash }
 
-    context 'with block' do
       before do
         movie.release_year = 2008
+      end
+
+      after do
+        movie.release_year = nil
+        MovieSerializer.meta_core_to_serialize = nil
+        MovieSerializer.meta_to_serialize = nil
+      end
+
+    context 'with block' do
+      before do
         MovieSerializer.meta do |movie|
           {
             years_since_release: year_since_release_calculator(movie.release_year)
           }
         end
-      end
-
-      after do
-        movie.release_year = nil
-        MovieSerializer.meta_to_serialize = nil
       end
 
       it 'returns correct hash when serializable_hash is called' do
@@ -471,17 +475,100 @@ describe FastJsonapi::ObjectSerializer do
 
     context 'with lambda' do
       before do
-        movie.release_year = 2008
         MovieSerializer.meta ->(movie) { { years_since_release: year_since_release_calculator(movie.release_year) } }
-      end
-
-      after do
-        movie.release_year = nil
-        MovieSerializer.meta_to_serialize = nil
       end
 
       it 'returns correct hash when serializable_hash is called' do
         expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
+      end
+    end
+
+    context 'with a meta call with param' do
+      before do
+        def movie.watch_count
+          1234
+        end
+
+        MovieSerializer.meta :watch_count
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({
+          watch_count: 1234
+        })
+      end
+    end
+
+    context 'with a meta call with param and if proc that is false, so meta is empty' do
+      before do
+        MovieSerializer.meta :watch_count, if: proc { false }
+      end
+
+      it 'does not output any meta at all' do
+        expect(serializable_hash[:data]).not_to have_key(:meta)
+      end
+    end
+
+    context 'with a meta call with param and block' do
+      before do
+        MovieSerializer.meta :watch_count do
+          4426
+        end
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({
+          watch_count: 4426
+        })
+      end
+    end
+
+    context 'with a meta call with param and &:proc' do
+      before do
+        def movie.watch_count
+          1234
+        end
+
+        MovieSerializer.meta :watched, &:watch_count
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({
+          watched: 1234
+        })
+      end
+    end
+
+    context 'with multiple different meta calls' do
+      before do
+        def movie.watch_count
+          1234
+        end
+
+        def movie.rating
+          5
+        end
+
+        MovieSerializer.meta :watched, &:watch_count
+        MovieSerializer.meta :rating
+        MovieSerializer.meta :not_visible, if: proc { false }
+        MovieSerializer.meta :with_block, if: proc { true } do
+          'output with block'
+        end
+        MovieSerializer.meta do
+          {
+            actors: %w[NameA NameB]
+          }
+        end
+      end
+
+      it 'returns correct hash when serializable_hash is called' do
+        expect(serializable_hash[:data][:meta]).to eq ({
+          watched: 1234,
+          rating: 5,
+          with_block: 'output with block',
+          actors: %w[NameA NameB]
+        })
       end
     end
 

@@ -49,6 +49,10 @@ describe FastJsonapi::ObjectSerializer do
     has_many :addresses, cached: true
     belongs_to :country
     has_one :photo
+
+    meta :user_meta do |object|
+      true
+    end
   end
 
   class Address
@@ -108,6 +112,10 @@ describe FastJsonapi::ObjectSerializer do
     attributes :compensation
 
     has_one :account, serializer: EmployeeAccountSerializer
+
+    meta :employee_meta do
+      true
+    end
   end
 
   it 'sets the correct record type' do
@@ -184,6 +192,23 @@ describe FastJsonapi::ObjectSerializer do
     it 'inherits the tranform method' do
       EmployeeSerializer
       expect(UserSerializer.transform_method).to eq EmployeeSerializer.transform_method
+    end
+  end
+
+  context 'when testing inheritance of meta' do
+    it 'includes parent meta' do
+      subclass_meta = EmployeeSerializer.meta_to_serialize
+      superclass_meta = UserSerializer.meta_to_serialize
+      expect(subclass_meta).to include(superclass_meta)
+    end
+
+    it 'includes child meta' do
+      expect(EmployeeSerializer.meta_to_serialize[:employee_meta].method.call).to eq(true)
+    end
+
+    it 'doesnt change parent meta' do
+      EmployeeSerializer
+      expect(UserSerializer.meta_to_serialize).not_to have_key(:employee_meta)
     end
   end
 end
