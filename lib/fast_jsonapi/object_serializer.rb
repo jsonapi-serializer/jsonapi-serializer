@@ -214,10 +214,7 @@ module FastJsonapi
         self.attributes_to_serialize = {} if self.attributes_to_serialize.nil?
 
         # to support calling `attribute` with a lambda, e.g `attribute :key, ->(object) { ... }`
-        if attributes_list.size == 2 && attributes_list[1].is_a?(Proc)
-          block = attributes_list[1]
-          attributes_list = [attributes_list[0]]
-        end
+        block = attributes_list.pop if attributes_list.last.is_a?(Proc)
 
         attributes_list.each do |attr_name|
           method_name = attr_name
