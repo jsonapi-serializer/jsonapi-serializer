@@ -3,12 +3,14 @@ require 'spec_helper'
 describe FastJsonapi::ObjectSerializer do
 
   class Person
-    attr_accessor :id, :name, :assets
+    attr_accessor :id, :name, :assets, :polymorphic_assets
   end
 
   class House
     attr_accessor :id, :address
   end
+
+  class BigHouse < House; end
 
   class Car
     attr_accessor :id, :model, :year
@@ -21,6 +23,14 @@ describe FastJsonapi::ObjectSerializer do
     set_key_transform :dash
 
     has_many :assets, serializer: -> (object) do
+      if object.is_a?(House)
+        HouseSerializer
+      elsif object.is_a?(Car)
+        CarSerializer
+      end
+    end
+
+    has_many :polymorphic_assets, polymorphic: true, serializer: -> (object) do
       if object.is_a?(House)
         HouseSerializer
       elsif object.is_a?(Car)
@@ -48,6 +58,13 @@ describe FastJsonapi::ObjectSerializer do
     house = House.new
     house.id = 123
     house.address = '1600 Pennsylvania Avenue'
+    house
+  end
+
+  let(:big_house) do
+    house = BigHouse.new
+    house.id = 789
+    house.address = '1600 Big House Avenue'
     house
   end
 
@@ -98,6 +115,52 @@ describe FastJsonapi::ObjectSerializer do
       expect(house_included[:type].to_s).to eq 'house'
       expect(house_included[:id].to_s).to eq house.id.to_s
       expect(house_included[:attributes][:address]).to eq house.address
+      car_included = included[1]
+      expect(car_included[:type].to_s).to eq 'car'
+      expect(car_included[:id].to_s).to eq car.id.to_s
+      expect(car_included[:attributes][:model]).to eq car.model
+    end
+  end
+
+  context 'when serializing a polymorphic relationship with a serializer block' do
+    it 'should output the correct JSON based on the proper serializer' do
+      person = Person.new
+      person.id = 1
+      person.name = 'Bob'
+      person.polymorphic_assets = [big_house, car]
+      person_hash = PersonSerializer.new(person).to_hash
+
+      relationships = person_hash[:data][:relationships]
+      big_house_relationship = relationships[:'polymorphic-assets'][:data][0]
+      expect(big_house_relationship[:type].to_s).to eq 'house'
+      expect(big_house_relationship[:id].to_s).to eq big_house.id.to_s
+      car_relationship = relationships[:'polymorphic-assets'][:data][1]
+      expect(car_relationship[:type].to_s).to eq 'car'
+      expect(car_relationship[:id].to_s).to eq car.id.to_s
+
+      expect(person_hash[:data]).to_not have_key :included
+    end
+
+    it 'should output the correct included records' do
+      person = Person.new
+      person.id = 1
+      person.name = 'Bob'
+      person.polymorphic_assets = [big_house, car]
+      person_hash = PersonSerializer.new(person, { include: [ :polymorphic_assets ] }).to_hash
+
+      relationships = person_hash[:data][:relationships]
+      big_house_relationship = relationships[:'polymorphic-assets'][:data][0]
+      expect(big_house_relationship[:type].to_s).to eq 'house'
+      expect(big_house_relationship[:id].to_s).to eq big_house.id.to_s
+      car_relationship = relationships[:'polymorphic-assets'][:data][1]
+      expect(car_relationship[:type].to_s).to eq 'car'
+      expect(car_relationship[:id].to_s).to eq car.id.to_s
+
+      included = person_hash[:included]
+      house_included = included[0]
+      expect(house_included[:type].to_s).to eq 'house'
+      expect(house_included[:id].to_s).to eq big_house.id.to_s
+      expect(house_included[:attributes][:address]).to eq big_house.address
       car_included = included[1]
       expect(car_included[:type].to_s).to eq 'car'
       expect(car_included[:id].to_s).to eq car.id.to_s
