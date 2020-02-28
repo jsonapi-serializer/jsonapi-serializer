@@ -67,13 +67,13 @@ module FastJsonapi
       if @static_serializer
         return @static_serializer
 
+      elsif serializer.is_a?(Proc)
+        FastJsonapi.call_proc(serializer, record, serialization_params)
+
       elsif polymorphic
         name = polymorphic[record.class] if polymorphic.is_a?(Hash)
         name ||= record.class.name
         serializer_for_name(name)
-
-      elsif serializer.is_a?(Proc)
-        FastJsonapi.call_proc(serializer, record, serialization_params)
 
       elsif object_block
         serializer_for_name(record.class.name)
