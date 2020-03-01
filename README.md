@@ -4,20 +4,14 @@ A lightning fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
 
 # Performance Comparison
 
-We compare serialization times with Active Model Serializer as part of RSpec
-performance tests included on this library. We want to ensure that with every
-change on this library, serialization time is about _25 times_ faster than
-the ActiveModelSerializers on up to a current benchmark of 1000 records. Please
-read the performance article in the `docs` folder for any questions related to
-methodology.
+We compare serialization times with `ActiveModelSerializer` and alternative
+implementations as part of performance tests available at
+[fast-jsonapi/comparisons](https://github.com/fast-jsonapi/comparisons).
 
-## Benchmark times for 250 records
-
-```bash
-$ rspec
-Active Model Serializer serialized 250 records in 138.71 ms
-Fast JSON API serialized 250 records in 3.01 ms
-```
+We want to ensure that with every
+change on this library, serialization time stays significantly faster than
+the performance provided by the alternatives. Please read the performance
+article in the `docs` folder for any questions related to methodology.
 
 # Table of Contents
 
@@ -655,18 +649,6 @@ tests. To run tests use the following command:
 
 ```bash
 rspec
-```
-
-To run tests without the performance tests (for quicker test runs):
-
-```bash
-rspec spec --tag ~performance:true
-```
-
-To run tests only performance tests:
-
-```bash
-rspec spec --tag performance:true
 ```
 
 ## Contributing
