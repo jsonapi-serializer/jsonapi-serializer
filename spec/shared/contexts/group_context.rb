@@ -68,30 +68,4 @@ RSpec.shared_context 'group class' do
     group.groupees = [person, child_group]
     group
   end
-
-  def build_groups(count)
-    group_count = 0
-    person_count = 0
-
-    count.times.map do |i|
-      group = Group.new
-      group.id = group_count + 1
-      group.name = "Test Group #{group.id}"
-      group_count = group.id
-
-      person = Person.new
-      person.id = person_count + 1
-      person.last_name = "Last Name #{person.id}"
-      person.first_name = "First Name #{person.id}"
-      person_count = person.id
-
-      child_group = Group.new
-      child_group.id = group_count + 1
-      child_group.name = "Test Group #{child_group.id}"
-      group_count = child_group.id
-
-      group.groupees = [person, child_group]
-      group
-    end
-  end
 end
