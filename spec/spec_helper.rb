@@ -1,3 +1,11 @@
+require 'simplecov'
+
+SimpleCov.start do
+  add_group 'Lib', 'lib'
+  add_group 'Tests', 'spec'
+end
+SimpleCov.minimum_coverage 90
+
 require 'active_record'
 require 'fast_jsonapi'
 require 'byebug'

@@ -22,18 +22,7 @@ describe FastJsonapi::ObjectSerializer do
   class User
     attr_accessor :id, :first_name, :last_name, :uuid
 
-    attr_accessor :address_ids, :country_id
-
-    def photo
-      p = Photo.new
-      p.id = 1
-      p.user_id = id
-      p
-    end
-
-    def photo_id
-      1
-    end
+    attr_accessor :address_ids, :country_id, :photo_id
   end
 
   class UserSerializer
@@ -89,17 +78,7 @@ describe FastJsonapi::ObjectSerializer do
 
   class Employee < User
     attr_accessor :id, :location, :compensation
-
-    def account
-      a = EmployeeAccount.new
-      a.id = 1
-      a.employee_id = id
-      a
-    end
-
-    def account_id
-      1
-    end
+    attr_accessor :account_id
   end
 
   class EmployeeSerializer < UserSerializer
