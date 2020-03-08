@@ -12,3 +12,13 @@ require 'byebug'
 
 Dir[File.dirname(__FILE__) + '/shared/contexts/*.rb'].each {|file| require file }
 Dir[File.dirname(__FILE__) + '/shared/examples/*.rb'].each {|file| require file }
+
+RSpec.configure do |config|
+  config.mock_with :rspec
+  config.filter_run_when_matching :focus
+  config.disable_monkey_patching!
+
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
+end
