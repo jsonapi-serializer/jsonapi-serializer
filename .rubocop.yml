@@ -1,0 +1,52 @@
+require:
+  - rubocop-performance
+  # - rubocop-rspec
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/WordArray:
+  Enabled: false
+
+# RSpec/DescribedClass:
+#   Enabled: false
+
+# TODO: Fix these...
+Style/Documentation:
+  Enabled: false
+
+Style/GuardClause:
+  Enabled: false
+
+Style/ConditionalAssignment:
+  Enabled: false
+
+Style/ClassAndModuleChildren:
+  Enabled: false
+
+Lint/AssignmentInCondition:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Metrics:
+  Enabled: false
+
+Naming/PredicateName:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Enabled: false
+
+Performance/TimesMap:
+  Enabled: false
+
+# RSpec/BeforeAfterAll:
+#   Enabled: false
