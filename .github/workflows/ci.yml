@@ -1,6 +1,6 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   tests:
@@ -24,7 +24,7 @@ jobs:
         bundle install
 
     - name: Runs code QA and tests
-      run: rspec
+      run: bundle exec rake
 
     - name: Publish to GPR
       continue-on-error: true
