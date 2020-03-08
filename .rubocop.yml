@@ -1,6 +1,6 @@
 require:
   - rubocop-performance
-  # - rubocop-rspec
+  - rubocop-rspec
 
 Style/FrozenStringLiteralComment:
   Enabled: false
@@ -11,42 +11,68 @@ Style/SymbolArray:
 Style/WordArray:
   Enabled: false
 
-# RSpec/DescribedClass:
-#   Enabled: false
+Style/SymbolProc:
+  Exclude:
+    - 'spec/fixtures/*.rb'
+
+Lint/DuplicateMethods:
+  Exclude:
+    - 'spec/fixtures/*.rb'
+
+RSpec/FilePath:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: false
+
+RSpec/ExampleLength:
+  Enabled: false
+
+RSpec/MultipleExpectations:
+  Enabled: false
+
+RSpec/NestedGroups:
+  Enabled: false
+
+Performance/TimesMap:
+  Exclude:
+    - 'spec/**/**.rb'
 
 # TODO: Fix these...
 Style/Documentation:
   Enabled: false
 
 Style/GuardClause:
-  Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
 
 Style/ConditionalAssignment:
-  Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
 
-Style/ClassAndModuleChildren:
-  Enabled: false
+Style/IfUnlessModifier:
+  Exclude:
+    - 'lib/**/**.rb'
 
 Lint/AssignmentInCondition:
-  Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
 
-Metrics/ModuleLength:
+Metrics:
+  Exclude:
+    - 'lib/**/**.rb'
+
+Metrics/BlockLength:
   Enabled: false
 
 Layout/LineLength:
-  Enabled: false
-
-Metrics:
-  Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
 
 Naming/PredicateName:
-  Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
 
 Naming/AccessorMethodName:
-  Enabled: false
-
-Performance/TimesMap:
-  Enabled: false
-
-# RSpec/BeforeAfterAll:
-#   Enabled: false
+  Exclude:
+    - 'lib/**/**.rb'
