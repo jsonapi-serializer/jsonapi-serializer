@@ -150,6 +150,7 @@ module FastJsonapi
         # ensure that the record type is correctly transformed
         if record_type
           set_type(record_type)
+        # TODO: Remove dead code
         elsif reflected_record_type
           set_type(reflected_record_type)
         end
@@ -231,6 +232,8 @@ module FastJsonapi
         self.cachable_relationships_to_serialize = {} if cachable_relationships_to_serialize.nil?
         self.uncachable_relationships_to_serialize = {} if uncachable_relationships_to_serialize.nil?
 
+        # TODO: Remove this undocumented option.
+        #   Delegate the caching to the serializer exclusively.
         if !relationship.cached
           uncachable_relationships_to_serialize[relationship.name] = relationship
         else
