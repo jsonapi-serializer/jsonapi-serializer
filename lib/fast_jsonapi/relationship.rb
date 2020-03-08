@@ -43,15 +43,14 @@ module FastJsonapi
         empty_case = relationship_type == :has_many ? [] : nil
 
         output_hash[key] = {}
-        unless (lazy_load_data && !included)
-          output_hash[key][:data] = ids_hash_from_record_and_relationship(record, serialization_params) || empty_case
-        end
+        output_hash[key][:data] = ids_hash_from_record_and_relationship(record, serialization_params) || empty_case unless lazy_load_data && !included
         add_links_hash(record, serialization_params, output_hash) if links.present?
       end
     end
 
     def fetch_associated_object(record, params)
       return FastJsonapi.call_proc(object_block, record, params) unless object_block.nil?
+
       record.send(object_method_name)
     end
 
@@ -65,7 +64,7 @@ module FastJsonapi
 
     def serializer_for(record, serialization_params)
       if @static_serializer
-        return @static_serializer
+        @static_serializer
 
       elsif polymorphic
         name = polymorphic[record.class] if polymorphic.is_a?(Hash)
@@ -102,9 +101,11 @@ module FastJsonapi
 
       return unless associated_object = fetch_associated_object(record, params)
 
-      return associated_object.map do |object|
-        id_hash_from_record object, params
-      end if associated_object.respond_to? :map
+      if associated_object.respond_to? :map
+        return associated_object.map do |object|
+          id_hash_from_record object, params
+        end
+      end
 
       id_hash_from_record associated_object, params
     end
@@ -116,10 +117,11 @@ module FastJsonapi
 
     def ids_hash(ids, record_type)
       return ids.map { |id| id_hash(id, record_type) } if ids.respond_to? :map
+
       id_hash(ids, record_type) # ids variable is just a single id here
     end
 
-    def id_hash(id, record_type, default_return=false)
+    def id_hash(id, record_type, default_return = false)
       if id.present?
         { id: id.to_s, type: record_type }
       else
@@ -131,24 +133,25 @@ module FastJsonapi
       if object_block.present?
         object = FastJsonapi.call_proc(object_block, record, params)
         return object.map { |item| item.public_send(id_method_name) } if object.respond_to? :map
+
         return object.try(id_method_name)
       end
       record.public_send(id_method_name)
     end
 
     def add_links_hash(record, params, output_hash)
-      if links.is_a?(Symbol)
-        output_hash[key][:links] = record.public_send(links)
-      else
-        output_hash[key][:links] = links.each_with_object({}) do |(key, method), hash|
-          Link.new(key: key, method: method).serialize(record, params, hash)\
-        end
-      end
+      output_hash[key][:links] = if links.is_a?(Symbol)
+                                   record.public_send(links)
+                                 else
+                                   links.each_with_object({}) do |(key, method), hash|
+                                     Link.new(key: key, method: method).serialize(record, params, hash)\
+                                   end
+                                 end
     end
 
     def run_key_transform(input)
-      if self.transform_method.present?
-        input.to_s.send(*self.transform_method).to_sym
+      if transform_method.present?
+        input.to_s.send(*transform_method).to_sym
       else
         input.to_sym
       end
@@ -156,6 +159,7 @@ module FastJsonapi
 
     def initialize_static_serializer
       return if @initialized_static_serializer
+
       @static_serializer = compute_static_serializer
       @static_record_type = compute_static_record_type
       @initialized_static_serializer = true
@@ -199,6 +203,7 @@ module FastJsonapi
     def record_type_for(record, serialization_params)
       # if the record type is static, return it
       return @static_record_type if @static_record_type
+
       # if not, use the record type of the serializer, and memoize the transformed version
       serializer = serializer_for(record, serialization_params)
       @record_types_for[serializer] ||= run_key_transform(serializer.record_type)

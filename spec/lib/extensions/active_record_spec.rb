@@ -2,11 +2,10 @@ require 'spec_helper'
 require 'active_record'
 require 'sqlite3'
 
-describe 'active record' do
-
+RSpec.describe 'active record' do
   # Setup DB
   before(:all) do
-    @db_file = "test.db"
+    @db_file = 'test.db'
 
     # Open a database
     db = SQLite3::Database.new @db_file
@@ -48,13 +47,12 @@ describe 'active record' do
     end
 
     ActiveRecord::Base.establish_connection(
-      :adapter => 'sqlite3',
-      :database  => @db_file
+      adapter: 'sqlite3',
+      database: @db_file
     )
   end
 
   context 'has one patch' do
-
     it 'has account_id method for a supplier' do
       expect(Supplier.first.respond_to?(:account_id)).to be true
       expect(Supplier.first.account_id).to eq @account_id
@@ -63,7 +61,6 @@ describe 'active record' do
     it 'has account_id method return nil if account not present' do
       expect(Supplier.find(@supplier_id_without_account).account_id).to eq nil
     end
-
   end
 
   # Clean up DB
@@ -72,10 +69,10 @@ describe 'active record' do
   end
 end
 
-describe 'active record has_one through' do
+RSpec.describe 'active record has_one through' do
   # Setup DB
   before(:all) do
-    @db_file = "test_two.db"
+    @db_file = 'test_two.db'
 
     # Open a database
     db = SQLite3::Database.new @db_file
@@ -130,8 +127,8 @@ describe 'active record has_one through' do
     end
 
     ActiveRecord::Base.establish_connection(
-      :adapter => 'sqlite3',
-      :database  => @db_file
+      adapter: 'sqlite3',
+      database: @db_file
     )
   end
 
@@ -139,7 +136,7 @@ describe 'active record has_one through' do
     it 'has an forest_id' do
       expect(Fruit.find(3).respond_to?(:forest_id)).to be true
       expect(Fruit.find(3).forest_id).to eq 1
-      expect(Fruit.find(3).forest.name).to eq "sherwood"
+      expect(Fruit.find(3).forest.name).to eq 'sherwood'
     end
 
     it 'has nil if tree id not available' do

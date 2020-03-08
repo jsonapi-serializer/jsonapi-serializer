@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe FastJsonapi do
+RSpec.describe FastJsonapi do
   describe '.call_proc' do
     context 'with a Proc' do
       context 'with no parameters' do

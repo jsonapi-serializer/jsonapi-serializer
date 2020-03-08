@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
+RSpec.describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   context 'when caching has_many' do
