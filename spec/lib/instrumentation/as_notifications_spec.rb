@@ -1,16 +1,15 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
+RSpec.describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   context 'instrument' do
-
     before(:all) do
       require 'fast_jsonapi/instrumentation'
     end
 
     after(:all) do
-      [ :serialized_json, :serializable_hash ].each do |m|
+      [:serialized_json, :serializable_hash].each do |m|
         alias_command = "alias_method :#{m}, :#{m}_without_instrumentation"
         FastJsonapi::ObjectSerializer.class_eval(alias_command)
 
@@ -29,7 +28,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'serializable_hash' do
-
       it 'should send notifications' do
         events = []
 
@@ -51,11 +49,9 @@ describe FastJsonapi::ObjectSerializer do
         expect(serialized_hash.key?(:meta)).to eq(true)
         expect(serialized_hash.key?(:included)).to eq(true)
       end
-
     end
 
     context 'serialized_json' do
-
       it 'should send notifications' do
         events = []
 
@@ -75,9 +71,6 @@ describe FastJsonapi::ObjectSerializer do
 
         expect(json.length).to be > 50
       end
-
     end
-
   end
-
 end

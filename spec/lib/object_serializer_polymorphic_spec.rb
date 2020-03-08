@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
+RSpec.describe FastJsonapi::ObjectSerializer do
   class List
     attr_accessor :id, :name, :items
   end

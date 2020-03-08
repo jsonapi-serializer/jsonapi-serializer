@@ -1,7 +1,6 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
-
+RSpec.describe FastJsonapi::ObjectSerializer do
   class Person
     attr_accessor :id, :name, :assets
   end
@@ -20,13 +19,13 @@ describe FastJsonapi::ObjectSerializer do
     attributes :name
     set_key_transform :dash
 
-    has_many :assets, serializer: -> (object) do
+    has_many :assets, serializer: lambda { |object|
       if object.is_a?(House)
         HouseSerializer
       elsif object.is_a?(Car)
         CarSerializer
       end
-    end
+    }
   end
 
   class HouseSerializer
@@ -42,7 +41,6 @@ describe FastJsonapi::ObjectSerializer do
     attributes :model, :year
     set_key_transform :dash
   end
-
 
   let(:house) do
     house = House.new
@@ -83,7 +81,7 @@ describe FastJsonapi::ObjectSerializer do
       person.id = 1
       person.name = 'Bob'
       person.assets = [house, car]
-      person_hash = PersonSerializer.new(person, { include: [ :assets ] }).to_hash
+      person_hash = PersonSerializer.new(person, { include: [:assets] }).to_hash
 
       relationships = person_hash[:data][:relationships]
       house_relationship = relationships[:assets][:data][0]

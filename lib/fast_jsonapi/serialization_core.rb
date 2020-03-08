@@ -25,7 +25,7 @@ module FastJsonapi
     end
 
     class_methods do
-      def id_hash(id, record_type, default_return=false)
+      def id_hash(id, record_type, default_return = false)
         if id.present?
           { id: id.to_s, type: record_type }
         else
@@ -75,22 +75,22 @@ module FastJsonapi
             temp_hash
           end
           record_hash[:relationships] = record_hash[:relationships].merge(relationships_hash(record, uncachable_relationships_to_serialize, fieldset, includes_list, params)) if uncachable_relationships_to_serialize.present?
-          record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
-          record_hash
         else
           record_hash = id_hash(id_from_record(record, params), record_type, true)
           record_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
           record_hash[:relationships] = relationships_hash(record, nil, fieldset, includes_list, params) if relationships_to_serialize.present?
           record_hash[:links] = links_hash(record, params) if data_links.present?
-          record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
-          record_hash
         end
+
+        record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
+        record_hash
       end
 
       def id_from_record(record, params)
         return FastJsonapi.call_proc(record_id, record, params) if record_id.is_a?(Proc)
         return record.send(record_id) if record_id
         raise MandatoryField, 'id is a mandatory field in the jsonapi spec' unless record.respond_to?(:id)
+
         record.id
       end
 
@@ -116,12 +116,15 @@ module FastJsonapi
 
           items.each do |item|
             next unless relationships_to_serialize && relationships_to_serialize[item]
+
             relationship_item = relationships_to_serialize[item]
             next unless relationship_item.include_relationship?(record, params)
+
             relationship_type = relationship_item.relationship_type
 
             included_objects = relationship_item.fetch_associated_object(record, params)
             next if included_objects.blank?
+
             included_objects = [included_objects] unless relationship_type == :has_many
 
             static_serializer = relationship_item.static_serializer
