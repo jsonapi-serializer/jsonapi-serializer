@@ -11,5 +11,5 @@ RuboCop::RakeTask.new('rubocop') do |task|
   ]
 end
 
-RSpec::Core::RakeTask.new(spec: ['rubocop'])
-task(default: :spec)
+RSpec::Core::RakeTask.new(:spec)
+task(default: [:rubocop, :spec])

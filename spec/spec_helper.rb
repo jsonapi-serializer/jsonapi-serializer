@@ -6,14 +6,19 @@ SimpleCov.start do
 end
 SimpleCov.minimum_coverage 90
 
-require 'active_record'
+require 'active_support/core_ext/object/json'
 require 'fast_jsonapi'
+require 'ffaker'
+require 'rspec'
+require 'jsonapi/rspec'
 require 'byebug'
+require 'securerandom'
 
-Dir[File.dirname(__FILE__) + '/shared/contexts/*.rb'].each {|file| require file }
-Dir[File.dirname(__FILE__) + '/shared/examples/*.rb'].each {|file| require file }
+Dir[File.expand_path('spec/fixtures/*.rb')].sort.each { |f| require f }
 
 RSpec.configure do |config|
+  config.include JSONAPI::RSpec
+
   config.mock_with :rspec
   config.filter_run_when_matching :focus
   config.disable_monkey_patching!
