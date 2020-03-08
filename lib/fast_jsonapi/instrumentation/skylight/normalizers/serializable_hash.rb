@@ -6,15 +6,13 @@ module FastJsonapi
     module Skylight
       module Normalizers
         class SerializableHash < SKYLIGHT_NORMALIZER_BASE_CLASS
-
           register FastJsonapi::ObjectSerializer::SERIALIZABLE_HASH_NOTIFICATION
 
           CAT = "view.#{FastJsonapi::ObjectSerializer::SERIALIZABLE_HASH_NOTIFICATION}".freeze
 
-          def normalize(trace, name, payload)
-            [ CAT, payload[:name], nil ]
+          def normalize(_trace, _name, payload)
+            [CAT, payload[:name], nil]
           end
-
         end
       end
     end

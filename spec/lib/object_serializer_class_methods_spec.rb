@@ -1,14 +1,13 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
-
+RSpec.describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   describe '#has_many' do
     subject(:relationship) { serializer.relationships_to_serialize[:roles] }
 
     before do
-      serializer.has_many *children
+      serializer.has_many(*children)
     end
 
     after do
@@ -16,7 +15,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with namespace' do
-
       before do
         class AppName::V1::RoleSerializer
           include FastJsonapi::ObjectSerializer
@@ -41,7 +39,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'without namespace' do
-
       before do
         class RoleSerializer
           include FastJsonapi::ObjectSerializer
@@ -151,7 +148,7 @@ describe FastJsonapi::ObjectSerializer do
     subject(:relationship) { MovieSerializer.relationships_to_serialize[:area] }
 
     before do
-      MovieSerializer.belongs_to *parent
+      MovieSerializer.belongs_to(*parent)
     end
 
     after do
@@ -159,7 +156,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with overrides' do
-
       before do
         class MyAreaSerializer
           include FastJsonapi::ObjectSerializer
@@ -173,7 +169,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'without overrides' do
-
       before do
         class AreaSerializer
           include FastJsonapi::ObjectSerializer
@@ -239,7 +234,7 @@ describe FastJsonapi::ObjectSerializer do
     subject(:relationship) { MovieSerializer.relationships_to_serialize[:area] }
 
     before do
-      MovieSerializer.has_one *partner
+      MovieSerializer.has_one(*partner)
     end
 
     after do
@@ -247,7 +242,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with overrides' do
-
       before do
         class MyAreaSerializer
           include FastJsonapi::ObjectSerializer
@@ -261,7 +255,6 @@ describe FastJsonapi::ObjectSerializer do
     end
 
     context 'without overrides' do
-
       before do
         class AreaSerializer
           include FastJsonapi::ObjectSerializer
@@ -465,7 +458,7 @@ describe FastJsonapi::ObjectSerializer do
       end
 
       it 'returns correct hash when serializable_hash is called' do
-        expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
+        expect(serializable_hash[:data][:meta]).to eq({ years_since_release: year_since_release_calculator(movie.release_year) })
       end
     end
 
@@ -481,7 +474,7 @@ describe FastJsonapi::ObjectSerializer do
       end
 
       it 'returns correct hash when serializable_hash is called' do
-        expect(serializable_hash[:data][:meta]).to eq ({ years_since_release: year_since_release_calculator(movie.release_year) })
+        expect(serializable_hash[:data][:meta]).to eq({ years_since_release: year_since_release_calculator(movie.release_year) })
       end
     end
 
@@ -502,9 +495,7 @@ describe FastJsonapi::ObjectSerializer do
 
     context 'with block calling instance method on serializer' do
       before do
-        MovieSerializer.link(:self) do |movie_object|
-          movie_object.url
-        end
+        MovieSerializer.link(:self, &:url)
       end
       let(:url) { "http://movies.com/#{movie.id}" }
 

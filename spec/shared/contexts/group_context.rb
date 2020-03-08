@@ -1,5 +1,4 @@
 RSpec.shared_context 'group class' do
-
   # Person, Group Classes and serializers
   before(:context) do
     # models
@@ -58,8 +57,8 @@ RSpec.shared_context 'group class' do
 
     person = Person.new
     person.id = 1
-    person.last_name = "Last Name 1"
-    person.first_name = "First Name 1"
+    person.last_name = 'Last Name 1'
+    person.first_name = 'First Name 1'
 
     child_group = Group.new
     child_group.id = 2

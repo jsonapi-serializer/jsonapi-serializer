@@ -10,10 +10,10 @@ module FastJsonapi
 
     def serialize(record, serialization_params, output_hash)
       if conditionally_allowed?(record, serialization_params)
-        output_hash[key] = if method.is_a?(Proc)
-          FastJsonapi.call_proc(method, record, serialization_params)
+        if method.is_a?(Proc)
+          output_hash[key] = FastJsonapi.call_proc(method, record, serialization_params)
         else
-          record.public_send(method)
+          output_hash[key] = record.public_send(method)
         end
       end
     end

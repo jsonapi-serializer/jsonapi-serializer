@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe FastJsonapi::ObjectSerializer do
+RSpec.describe FastJsonapi::ObjectSerializer do
   include_context 'movie class'
 
   context 'when testing object serializer with ruby struct' do

@@ -1,5 +1,4 @@
 RSpec.shared_context 'movie class' do
-
   # Movie, Actor Classes and serializers
   before(:context) do
     # models
@@ -45,13 +44,14 @@ RSpec.shared_context 'movie class' do
 
       def owner
         return unless owner_id
+
         ow = Owner.new
         ow.id = owner_id
         ow
       end
 
       def cache_key
-        "#{id}"
+        id.to_s
       end
 
       def local_name(locale = :english)
@@ -127,7 +127,7 @@ RSpec.shared_context 'movie class' do
       attr_accessor :id, :name, :movie_ids
 
       def movies
-        movie_ids.map.with_index do |id, i|
+        movie_ids.map.with_index do
           m = Movie.new
           m.id = 232
           m.name = 'test movie'
@@ -170,7 +170,7 @@ RSpec.shared_context 'movie class' do
       # director attr is not mentioned intentionally
       attributes :name, :release_year
       has_many :actors
-      belongs_to :owner, record_type: :user do |object, params|
+      belongs_to :owner, record_type: :user do |object, _params|
         object.owner
       end
       belongs_to :movie_type
@@ -190,7 +190,7 @@ RSpec.shared_context 'movie class' do
     end
 
     class OptionalDownloadableMovieSerializer < MovieSerializer
-      link(:download, if: Proc.new { |record, params| params && params[:signed_url] }) do |movie, params|
+      link(:download, if: proc { |_record, params| params && params[:signed_url] }) do |_movie, params|
         params[:signed_url]
       end
     end
@@ -247,10 +247,12 @@ RSpec.shared_context 'movie class' do
     class AwardSerializer
       include FastJsonapi::ObjectSerializer
       attributes :id, :title
-      attribute :year, if: Proc.new { |record, params|
-        params[:include_award_year].present? ?
-          params[:include_award_year] :
+      attribute :year, if: proc { |_record, params|
+        if params[:include_award_year].present?
+          params[:include_award_year]
+        else
           false
+        end
       }
       belongs_to :actor
     end
@@ -308,7 +310,7 @@ RSpec.shared_context 'movie class' do
       include FastJsonapi::ObjectSerializer
       set_type :movie
       attributes :name
-      attribute :release_year, if: Proc.new { |record| record.release_year >= 2000 }
+      attribute :release_year, if: proc { |record| record.release_year >= 2000 }
     end
 
     class MovieOptionalRecordDataWithLambdaSerializer
@@ -322,14 +324,14 @@ RSpec.shared_context 'movie class' do
       include FastJsonapi::ObjectSerializer
       set_type :movie
       attributes :name
-      attribute :director, if: Proc.new { |record, params| params[:admin] == true }
+      attribute :director, if: proc { |_record, params| params[:admin] == true }
     end
 
     class MovieOptionalRelationshipSerializer
       include FastJsonapi::ObjectSerializer
       set_type :movie
       attributes :name
-      has_many :actors, if: Proc.new { |record| record.actors.any? }
+      has_many :actors, if: proc { |record| record.actors.any? }
     end
 
     class MovieOptionalRelationshipWithLambdaSerializer
@@ -343,14 +345,14 @@ RSpec.shared_context 'movie class' do
       include FastJsonapi::ObjectSerializer
       set_type :movie
       attributes :name
-      belongs_to :owner, record_type: :user, if: Proc.new { |record, params| params[:admin] == true }
+      belongs_to :owner, record_type: :user, if: proc { |_record, params| params[:admin] == true }
     end
 
     class MovieOptionalAttributeContentsWithParamsSerializer
       include FastJsonapi::ObjectSerializer
       set_type :movie
       attributes :name
-      attribute :director do |record, params|
+      attribute :director do |_record, params|
         data = {}
         data[:first_name] = 'steven'
         data[:last_name] = 'spielberg' if params[:admin]
@@ -358,7 +360,6 @@ RSpec.shared_context 'movie class' do
       end
     end
   end
-
 
   # Namespaced MovieSerializer
   before(:context) do
@@ -423,9 +424,6 @@ RSpec.shared_context 'movie class' do
   end
 
   let(:movie_struct) do
-
-    agency = AgencyStruct
-
     actors = []
 
     3.times.each do |id|
@@ -436,7 +434,7 @@ RSpec.shared_context 'movie class' do
     m[:id] = 23
     m[:name] = 'struct movie'
     m[:release_year] = 1987
-    m[:actor_ids] = [1,2,3]
+    m[:actor_ids] = [1, 2, 3]
     m[:owner_id] = 3
     m[:movie_type_id] = 2
     m[:actors] = actors
@@ -467,13 +465,13 @@ RSpec.shared_context 'movie class' do
   end
 
   let(:movie_type) do
-     movie
+    movie
 
-     mt = MovieType.new
-     mt.id = movie.movie_type_id
-     mt.name = 'Foreign Thriller'
-     mt.movie_ids = [movie.id]
-     mt
+    mt = MovieType.new
+    mt.id = movie.movie_type_id
+    mt.name = 'Foreign Thriller'
+    mt.movie_ids = [movie.id]
+    mt
   end
 
   let(:supplier) do
