@@ -171,8 +171,8 @@ module FastJsonapi
         set_key_transform :dash
       end
 
-      def set_type(type_name)
-        self.record_type = run_key_transform(type_name)
+      def set_type(type_name = nil, &block)
+        self.record_type = run_key_transform(block || type_name)
       end
 
       def set_id(id_name = nil, &block)
