@@ -51,10 +51,14 @@ Fast JSON API serialized 250 records in 3.01 ms
 
 ## Installation
 
-Add this line to your application's Gemfile:
+The `fast_jsonapi` is hosted on Github Package Registry and not on Rubygems.
+
+Add the GPR source and the gem to your Gemfile:
 
 ```ruby
-gem 'fast_jsonapi', '~> 1.6.0', git: 'https://github.com/fast-jsonapi/fast_jsonapi'
+source 'https://rubygems.pkg.github.com/fast-jsonapi'
+
+gem 'fast_jsonapi'
 ```
 
 Execute:
