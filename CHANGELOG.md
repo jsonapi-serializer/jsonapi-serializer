@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.0] - 2020-04-29
+### Added
+- Serializer option support for procs (#32)
+- JSON serialization API method is now implementable (#44)
+
+### Changed
+- Support for polymorphic `id_method_name` (#17)
+- Relationships support for `&:proc` syntax (#58)
+- Conditional support for procs (#59)
+- Attribute support for procs (#67)
+- Refactor caching support (#52)
+- `is_collection?` is safer for objects (#18)
+
+### Removed
+- `serialized_json` is now deprecated (#44)
+
 ## [1.6.0] - 2019-11-04
 ### Added
 - Allow relationship links to be delcared as a method ([#2](https://github.com/fast-jsonapi/fast_jsonapi/pull/2))
@@ -17,6 +33,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Define ObjectSerializer.set_key_transform mapping as a constant ([#7](https://github.com/fast-jsonapi/fast_jsonapi/pull/7))
 - Optimize SerializtionCore.remaining_items by taking from original array ([#9](https://github.com/fast-jsonapi/fast_jsonapi/pull/9))
 - Optimize ObjectSerializer.deep_symbolize by using each_with_object instead of Hash[map] ([#6](https://github.com/fast-jsonapi/fast_jsonapi/pull/6))
-
-[Unreleased]: https://github.com/fast-jsonapi/fast_jsonapi/compare/dev...HEAD
-[1.6.0]: https://github.com/fast-jsonapi/fast_jsonapi/compare/1.5...1.6.0
