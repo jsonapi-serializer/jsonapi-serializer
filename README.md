@@ -45,14 +45,10 @@ article in the `docs` folder for any questions related to methodology.
 
 ## Installation
 
-The `fast_jsonapi` is hosted on Github Package Registry and not on Rubygems.
-
-Add the GPR source and the gem to your Gemfile:
+Add this line to your application's Gemfile:
 
 ```ruby
-source 'https://rubygems.pkg.github.com/fast-jsonapi'
-
-gem 'fast_jsonapi'
+gem 'fast_jsonapi', '~> 1.7.1', git: 'https://github.com/fast-jsonapi/fast_jsonapi'
 ```
 
 Execute:
