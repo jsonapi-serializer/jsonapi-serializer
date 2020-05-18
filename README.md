@@ -48,7 +48,7 @@ article in the `docs` folder for any questions related to methodology.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'fast_jsonapi', '~> 1.7.1', git: 'https://github.com/fast-jsonapi/fast_jsonapi'
+gem 'fast-jsonapi', '~> 1.8.0'
 ```
 
 Execute:
