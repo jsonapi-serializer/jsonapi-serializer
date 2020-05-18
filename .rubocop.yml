@@ -76,3 +76,7 @@ Naming/PredicateName:
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/**/**.rb'
+
+Naming/FileName:
+  Exclude:
+    - 'lib/fast-jsonapi.rb'
