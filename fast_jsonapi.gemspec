@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'fast_jsonapi/version'
 
 Gem::Specification.new do |gem|
-  gem.name = 'fast_jsonapi'
+  gem.name = 'fast-jsonapi'
   gem.version = FastJsonapi::VERSION
 
   gem.authors = [
