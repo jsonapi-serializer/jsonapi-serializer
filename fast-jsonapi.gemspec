@@ -19,7 +19,7 @@ Gem::Specification.new do |gem|
   gem.description =
     'Fast JSON:API (jsonapi.org) serialization library ' \
     'to work with any kind of objects'
-  gem.homepage = 'http://github.com/fast-jsonapi/fast_jsonapi'
+  gem.homepage = 'http://github.com/fast-jsonapi/fast-jsonapi'
   gem.licenses = ['Apache-2.0']
   gem.files = Dir['lib/**/*']
   gem.require_paths = ['lib']

@@ -10,7 +10,7 @@ it working with the popular `oj` gem:
 
 ```ruby
 require 'oj'
-require 'fast_jsonapi'
+require 'fast-jsonapi'
 
 class BaseSerializer
   include FastJsonapi::ObjectSerializer
