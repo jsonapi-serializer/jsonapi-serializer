@@ -212,8 +212,13 @@ module FastJsonapi
     end
 
     def compute_static_record_type
-      return run_key_transform(record_type) if record_type
-      return run_key_transform(@static_serializer.record_type) if @static_serializer
+      if polymorphic
+        nil
+      elsif record_type
+        run_key_transform(record_type)
+      elsif @static_serializer
+        run_key_transform(@static_serializer.record_type)
+      end
     end
   end
 end
