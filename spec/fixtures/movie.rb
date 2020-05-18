@@ -61,7 +61,7 @@ class MovieSerializer
              id_method_name: :uid,
              polymorphic: {
                Actor => :actor,
-               User => :user,
+               User => :user
              }
 
   has_many(
