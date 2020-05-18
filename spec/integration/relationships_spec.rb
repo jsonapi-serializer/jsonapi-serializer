@@ -8,6 +8,7 @@ RSpec.describe FastJsonapi::ObjectSerializer do
     poly_act = Actor.fake
     poly_act.movies = [Movie.fake]
     mov.polymorphics = [User.fake, poly_act]
+    mov.actor_or_user = Actor.fake
     mov
   end
   let(:params) { {} }
@@ -93,7 +94,7 @@ RSpec.describe FastJsonapi::ObjectSerializer do
         end
       end
 
-      context 'with polymorphic' do
+      context 'with has_many polymorphic' do
         let(:params) do
           { include: ['actors_and_users.played_movies'] }
         end
@@ -118,6 +119,18 @@ RSpec.describe FastJsonapi::ObjectSerializer do
                 }]
               )
             )
+          )
+        end
+      end
+
+      context 'with belongs_to polymorphic' do
+        let(:params) do
+          { include: ['actor_or_user'] }
+        end
+
+        it do
+          expect(serialized['included']).to include(
+            have_type('actor').and(have_id(movie.actor_or_user.uid))
           )
         end
       end
