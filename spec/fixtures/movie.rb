@@ -3,6 +3,7 @@ class Movie
     :id,
     :name,
     :year,
+    :actor_or_user,
     :actors,
     :actor_ids,
     :polymorphics,
@@ -55,6 +56,14 @@ class MovieSerializer
   link :self, :url
 
   belongs_to :owner, serializer: UserSerializer
+
+  belongs_to :actor_or_user,
+             id_method_name: :uid,
+             polymorphic: {
+               Actor => :actor,
+               User => :user
+             }
+
   has_many(
     :actors,
     links: {
