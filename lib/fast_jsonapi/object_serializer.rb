@@ -72,15 +72,6 @@ module FastJsonapi
       serializable_hash
     end
 
-    def serialized_json(*args)
-      warn(
-        'DEPRECATION: `#serialized_json` will be removed in the next release. '\
-        'More details: https://github.com/fast-jsonapi/fast_jsonapi/pull/44'
-      )
-      serializable_hash.to_json(*args)
-    end
-    alias to_json serialized_json
-
     private
 
     def process_options(options)
