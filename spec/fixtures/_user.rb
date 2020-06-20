@@ -15,7 +15,7 @@ class NoSerializerUser < User
 end
 
 class UserSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_id :uid
   attributes :first_name, :last_name, :email
