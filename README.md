@@ -1,12 +1,18 @@
-# Fast JSON API
+# JSON:API Serialization Library
 
-A lightning fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
+A fast [JSON:API](http://jsonapi.org/) serializer for Ruby Objects.
+
+Previously this project was called **fast_jsonapi**, we forked the project
+and renamed it to **jsonapi/serializer** in order to keep it alive.
+
+We would like to thank the Netflix team for the initial work and to all our
+contributors and users for the continuous support!
 
 # Performance Comparison
 
 We compare serialization times with `ActiveModelSerializer` and alternative
 implementations as part of performance tests available at
-[fast-jsonapi/comparisons](https://github.com/fast-jsonapi/comparisons).
+[jsonapi-serializer/comparisons](https://github.com/jsonapi-serializer/comparisons).
 
 We want to ensure that with every
 change on this library, serialization time stays significantly faster than
@@ -48,7 +54,7 @@ article in the `docs` folder for any questions related to methodology.
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'fast_jsonapi', '~> 1.7.2', git: 'https://github.com/fast-jsonapi/fast_jsonapi'
+gem 'jsonapi-serializer'
 ```
 
 Execute:
@@ -79,7 +85,8 @@ end
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
+
   set_type :movie  # optional
   set_id :owner_id # optional
   attributes :name, :year
@@ -161,14 +168,15 @@ json_string = MovieSerializer.new(movie).serializable_hash.to_json
 ```
 
 #### The Optionality of `set_type`
-By default fast_jsonapi will try to figure the type based on the name of the serializer class. For example `class MovieSerializer` will automatically have a type of `:movie`. If your serializer class name does not follow this format, you have to manually state the `set_type` at the serializer. 
+By default fast_jsonapi will try to figure the type based on the name of the serializer class. For example `class MovieSerializer` will automatically have a type of `:movie`. If your serializer class name does not follow this format, you have to manually state the `set_type` at the serializer.
 
 ### Key Transforms
 By default fast_jsonapi underscores the key names. It supports the same key transforms that are supported by AMS. Here is the syntax of specifying a key transform
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
+
   # Available options :camel, :camel_lower, :dash, :underscore(default)
   set_key_transform :camel
 end
@@ -183,13 +191,13 @@ set_key_transform :underscore # "some_key" => "some_key"
 ```
 
 ### Attributes
-Attributes are defined in FastJsonapi using the `attributes` method.  This method is also aliased as `attribute`, which is useful when defining a single attribute.
+Attributes are defined using the `attributes` method.  This method is also aliased as `attribute`, which is useful when defining a single attribute.
 
 By default, attributes are read directly from the model property of the same name.  In this example, `name` is expected to be a property of the object being serialized:
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attribute :name
 end
@@ -199,7 +207,7 @@ Custom attributes that must be serialized but do not exist on the model can be d
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attributes :name, :year
 
@@ -213,7 +221,7 @@ The block syntax can also be used to override the property on the object:
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attribute :name do |object|
     "#{object.name} Part 2"
@@ -225,7 +233,7 @@ Attributes can also use a different name by passing the original method or acces
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attributes :name
 
@@ -234,7 +242,7 @@ end
 ```
 
 ### Links Per Object
-Links are defined in FastJsonapi using the `link` method. By default, links are read directly from the model property of the same name. In this example, `public_url` is expected to be a property of the object being serialized.
+Links are defined using the `link` method. By default, links are read directly from the model property of the same name. In this example, `public_url` is expected to be a property of the object being serialized.
 
 You can configure the method to use on the object for example a link with key `self` will get set to the value returned by a method called `url` on the movie object.
 
@@ -242,7 +250,7 @@ You can also use a block to define a url as shown in `custom_url`. You can acces
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   link :public_url
 
@@ -264,7 +272,7 @@ You can specify [relationship links](http://jsonapi.org/format/#document-resourc
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   has_many :actors, links: {
     self: :url,
@@ -299,7 +307,7 @@ For every resource in the collection, you can include a meta object containing n
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   meta do |movie|
     {
@@ -364,10 +372,10 @@ To enable caching, use `cache_options store: <cache_store>`:
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   # use rails cache with a separate namespace and fixed expiry
-  cache_options store: Rails.cache, namespace: 'fast-jsonapi', expires_in: 1.hour
+  cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
 end
 ```
 
@@ -378,10 +386,10 @@ end
 - `options` is everything that was passed to `cache_options` except `store`, so it can be everyhing the cache store supports
 - `&block` should be executed to fetch new data if cache is empty
 
-So for the example above, FastJsonapi will call the cache instance like this:
+So for the example above it will call the cache instance like this:
 
 ```ruby
-Rails.cache.fetch(record, namespace: 'fast-jsonapi, expires_in: 1.hour) { ... }
+Rails.cache.fetch(record, namespace: 'jsonapi-serializer', expires_in: 1.hour) { ... }
 ```
 
 ### Params
@@ -398,7 +406,7 @@ parameter.
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_id do |movie, params|
     # in here, params is a hash containing the `:admin` key
@@ -432,7 +440,7 @@ Conditional attributes can be defined by passing a Proc to the `if` key on the `
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attributes :name, :year
   attribute :release_year, if: Proc.new { |record|
@@ -458,7 +466,7 @@ Conditional relationships can be defined by passing a Proc to the `if` key. Retu
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   # Actors will only be serialized if the record has any associated actors
   has_many :actors, if: Proc.new { |record| record.actors.any? }
@@ -479,7 +487,7 @@ In many cases, the relationship can automatically detect the serializer to use.
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   # resolves to StudioSerializer
   belongs_to :studio
@@ -492,7 +500,7 @@ At other times, such as when a property name differs from the class name, you ma
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   # resolves to MovieStudioSerializer
   belongs_to :studio, serializer: :movie_studio
@@ -505,7 +513,7 @@ For more advanced cases, such as polymorphic relationships and Single Table Inhe
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   has_many :actors, serializer: Proc.new do |record, params|
     if record.comedian?
@@ -525,7 +533,7 @@ Attributes and relationships can be selectively returned per record type by usin
 
 ```ruby
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   attributes :name, :year
 end
@@ -556,7 +564,7 @@ module AvatarHelper
 end
 
 class UserSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   include AvatarHelper # mixes in your helper method as class method
 
@@ -581,7 +589,7 @@ module AvatarHelper
 end
 
 class UserSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   extend AvatarHelper # mixes in your helper method as class method
 
