@@ -1,3 +1,3 @@
 module FastJsonapi
-  VERSION = '2.0.0'.freeze
+  VERSION = JSONAPI::Serializer::VERSION
 end

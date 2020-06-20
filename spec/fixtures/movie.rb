@@ -44,7 +44,7 @@ class Movie
 end
 
 class MovieSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_type :movie
 

@@ -33,7 +33,7 @@ class ActorSerializer < UserSerializer
 end
 
 class CamelCaseActorSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   set_key_transform :camel
 

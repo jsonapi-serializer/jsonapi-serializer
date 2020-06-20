@@ -7,7 +7,7 @@ end
 SimpleCov.minimum_coverage 90
 
 require 'active_support/core_ext/object/json'
-require 'fast_jsonapi'
+require 'jsonapi/serializer'
 require 'ffaker'
 require 'rspec'
 require 'jsonapi/rspec'
