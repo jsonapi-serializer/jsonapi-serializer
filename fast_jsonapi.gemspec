@@ -24,6 +24,11 @@ Gem::Specification.new do |gem|
   gem.files = Dir['lib/**/*']
   gem.require_paths = ['lib']
   gem.extra_rdoc_files = ['LICENSE.txt', 'README.md']
+  gem.post_install_message = (
+    'This was previously known as `fast_jsonapi` ' \
+    'and it is now renamed to `jsonapi-serializer`. ' \
+    'Please see the project web page on how to migrate. Thank you!'
+  )
 
   gem.add_runtime_dependency('activesupport', '>= 4.2')
 
