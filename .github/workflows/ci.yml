@@ -26,16 +26,15 @@ jobs:
     - name: Runs code QA and tests
       run: bundle exec rake
 
-    - name: Publish to GPR
+    - name: Publish to Rubygems
       continue-on-error: true
       if: ${{ github.ref == 'refs/heads/master' }}
       run: |
         mkdir -p $HOME/.gem
         touch $HOME/.gem/credentials
         chmod 0600 $HOME/.gem/credentials
-        printf -- "---\n:github: Bearer ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
+        printf -- "---\n:rubygems_api_key: Bearer ${GEM_HOST_API_KEY}\n" > $HOME/.gem/credentials
         gem build *.gemspec
-        gem push --KEY github --host https://rubygems.pkg.github.com/${OWNER} *.gem
+        gem push *.gem
       env:
-        GEM_HOST_API_KEY: ${{secrets.GPR_AUTH_TOKEN}}
-        OWNER: fast-jsonapi
+        GEM_HOST_API_KEY: ${{secrets.RUBYGEMS_AUTH_TOKEN}}
