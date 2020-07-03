@@ -66,7 +66,7 @@ class MovieSerializer
 
   has_many(
     :actors,
-    meta: Proc.new{|record,_| {count: record.actors.length}},
+    meta: proc { |record, _| { count: record.actors.length } },
     links: {
       actors_self: :url,
       related: ->(obj) { obj.url(obj) }

@@ -157,11 +157,11 @@ module FastJsonapi
 
     def add_meta_hash(record, params, output_hash)
       output_hash[key][:meta] = case meta
-      when Hash
-        meta
-      when Proc
-        FastJsonapi.call_proc(meta, record, params)
-      end
+                                when Hash
+                                  meta
+                                when Proc
+                                  FastJsonapi.call_proc(meta, record, params)
+                                end
     end
 
     def run_key_transform(input)
