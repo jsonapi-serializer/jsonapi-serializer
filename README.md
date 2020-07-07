@@ -329,7 +329,7 @@ class MovieSerializer
   include JSONAPI::Serializer
 
   has_many :actors, meta: Proc.new do |movie_record, params|
-    {count: movie_record.actors.length }
+    { count: movie_record.actors.length }
   end
 end
 ```

@@ -150,17 +150,16 @@ module FastJsonapi
                                    record.public_send(links)
                                  else
                                    links.each_with_object({}) do |(key, method), hash|
-                                     Link.new(key: key, method: method).serialize(record, params, hash)\
+                                     Link.new(key: key, method: method).serialize(record, params, hash)
                                    end
                                  end
     end
 
     def add_meta_hash(record, params, output_hash)
-      output_hash[key][:meta] = case meta
-                                when Hash
-                                  meta
-                                when Proc
+      output_hash[key][:meta] = if meta.is_a?(Proc)
                                   FastJsonapi.call_proc(meta, record, params)
+                                else
+                                  meta
                                 end
     end
 
