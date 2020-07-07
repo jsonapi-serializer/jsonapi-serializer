@@ -59,6 +59,13 @@ RSpec.describe FastJsonapi::ObjectSerializer do
         )
     end
 
+    describe 'has relationship meta' do
+      it do
+        expect(serialized['data']['relationships']['actors'])
+          .to have_meta('count' => movie.actors.length)
+      end
+    end
+
     context 'with include' do
       let(:params) do
         { include: [:actors] }
