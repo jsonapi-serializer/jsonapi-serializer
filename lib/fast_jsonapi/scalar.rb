@@ -1,11 +1,12 @@
 module FastJsonapi
   class Scalar
-    attr_reader :key, :method, :conditional_proc
+    attr_reader :key, :method, :conditional, :serializer
 
-    def initialize(key:, method:, options: {})
+    def initialize(key:, method:, options: {}, serializer:)
       @key = key
       @method = method
-      @conditional_proc = options[:if]
+      @conditional = options[:if]
+      @serializer = serializer
     end
 
     def serialize(record, serialization_params, output_hash)
@@ -19,11 +20,14 @@ module FastJsonapi
     end
 
     def conditionally_allowed?(record, serialization_params)
-      if conditional_proc.present?
-        FastJsonapi.call_proc(conditional_proc, record, serialization_params)
-      else
-        true
-      end
+      return true unless conditional.present?
+
+      conditional_proc = if conditional.is_a? Symbol
+                           serializer.new(record, serialization_params).method(conditional).to_proc
+                         else
+                           conditional
+                         end
+      FastJsonapi.call_proc(conditional_proc, record, serialization_params)
     end
   end
 end

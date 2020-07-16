@@ -1,12 +1,14 @@
 require 'active_support/cache'
 
 class Actor < User
-  attr_accessor :movies, :movie_ids
+  attr_accessor :movies, :movie_ids, :age, :birthplace, :show_birthplace
 
   def self.fake(id = nil)
     faked = super(id)
     faked.movies = []
     faked.movie_ids = []
+    faked.age = rand(99)
+    faked.birthplace = FFaker::Address.city
     faked
   end
 
@@ -21,6 +23,8 @@ class ActorSerializer < UserSerializer
   set_type :actor
 
   attribute :email, if: ->(_object, params) { params[:conditionals_off].nil? }
+  attribute :age, if: :symbol_conditionals_off
+  attribute :birthplace, if: :show_birthplace
 
   has_many(
     :played_movies,
@@ -29,6 +33,14 @@ class ActorSerializer < UserSerializer
     if: ->(_object, params) { params[:conditionals_off].nil? }
   ) do |object|
     object.movies
+  end
+
+  def symbol_conditionals_off(_object, params)
+    params[:symbol_conditionals_off].nil?
+  end
+
+  def show_birthplace(object)
+    object.show_birthplace
   end
 end
 

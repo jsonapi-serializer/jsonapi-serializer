@@ -453,7 +453,7 @@ the block to only receive one argument.
 
 ### Conditional Attributes
 
-Conditional attributes can be defined by passing a Proc to the `if` key on the `attribute` method. Return `true` if the attribute should be serialized, and `false` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
+Conditional attributes can be defined by passing a Proc or a symbolized name of a method defined in the serializer to the `if` key on the `attribute` method. Return `true` if the attribute should be serialized, and `false` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
 
 ```ruby
 class MovieSerializer
@@ -469,6 +469,19 @@ class MovieSerializer
     # The director will be serialized only if the :admin key of params is true
     params && params[:admin] == true
   }
+
+  attribute :country, if: :show_country
+  attribute :rating, if: :show_rating
+
+  def show_country(_object, params)
+    # The country will be serialized only if the :admin key of params is true
+    params.try(:admin) == true
+  end
+
+  def show_rating(object)
+    # The rating will be shown only if it's higher than 2
+    object.rating > 2
+  end
 end
 
 # ...
@@ -476,6 +489,7 @@ current_user = User.find(cookies[:current_user_id])
 serializer = MovieSerializer.new(movie, { params: { admin: current_user.admin? }})
 serializer.serializable_hash
 ```
+The same stands for links and `link` method.
 
 ### Conditional Relationships
 

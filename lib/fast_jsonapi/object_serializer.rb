@@ -211,7 +211,8 @@ module FastJsonapi
           attributes_to_serialize[key] = Attribute.new(
             key: key,
             method: block || method_name,
-            options: options
+            options: options,
+            serializer: self
           )
         end
       end
@@ -330,7 +331,8 @@ module FastJsonapi
         data_links[key] = Link.new(
           key: key,
           method: block || link_method_name,
-          options: options
+          options: options,
+          serializer: self
         )
       end
 
