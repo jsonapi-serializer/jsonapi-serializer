@@ -17,7 +17,7 @@ RSpec.describe FastJsonapi::ObjectSerializer do
       expect(serialized['data']).to have_type('actor')
 
       expect(serialized['data'])
-        .to have_jsonapi_attributes('first_name', 'last_name', 'email').exactly
+        .to have_jsonapi_attributes('first_name', 'last_name', 'email', 'age').exactly
       expect(serialized['data']).to have_attribute('first_name')
         .with_value(actor.first_name)
       expect(serialized['data']).to have_attribute('last_name')
@@ -33,10 +33,28 @@ RSpec.describe FastJsonapi::ObjectSerializer do
     end
 
     context 'with `if` conditions' do
-      let(:params) { { params: { conditionals_off: 'yes' } } }
+      context 'when condition is a proc' do
+        let(:params) { { params: { conditionals_off: 'yes' } } }
 
-      it do
-        expect(serialized['data']).not_to have_attribute('email')
+        it do
+          expect(serialized['data']).not_to have_attribute('email')
+        end
+
+        context 'when condition is a symbol and method accepts params' do
+          let(:params) { { params: { symbol_conditionals_off: 'yes' } } }
+
+          it do
+            expect(serialized['data']).not_to have_attribute('age')
+          end
+        end
+
+        context 'when condition is a symbol and method accepts only record' do
+          before { actor.show_birthplace = true }
+
+          it do
+            expect(serialized['data']).to have_attribute('birthplace')
+          end
+        end
       end
     end
 

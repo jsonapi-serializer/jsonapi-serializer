@@ -150,7 +150,7 @@ module FastJsonapi
                                    record.public_send(links)
                                  else
                                    links.each_with_object({}) do |(key, method), hash|
-                                     Link.new(key: key, method: method).serialize(record, params, hash)
+                                     Link.new(key: key, method: method, serializer: serializer).serialize(record, params, hash)
                                    end
                                  end
     end
