@@ -80,7 +80,7 @@ module FastJsonapi
 
       return if options.blank?
 
-      @known_included_objects = {}
+      @known_included_objects = Set.new
       @meta = options[:meta]
       @links = options[:links]
       @is_collection = options[:is_collection]
