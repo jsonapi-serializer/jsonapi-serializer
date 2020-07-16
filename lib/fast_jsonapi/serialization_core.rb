@@ -109,13 +109,14 @@ module FastJsonapi
       # includes handler
       def get_included_records(record, includes_list, known_included_objects, fieldsets, params = {})
         return unless includes_list.present?
+        return [] unless relationships_to_serialize
 
         includes_list.sort.each_with_object([]) do |include_item, included_records|
           items = parse_include_item(include_item)
           remaining_items = remaining_items(items)
 
           items.each do |item|
-            next unless relationships_to_serialize && relationships_to_serialize[item]
+            next unless relationships_to_serialize[item]
 
             relationship_item = relationships_to_serialize[item]
             next unless relationship_item.include_relationship?(record, params)
