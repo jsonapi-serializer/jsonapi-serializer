@@ -94,16 +94,12 @@ module FastJsonapi
         record.id
       end
 
-      def parse_include_item(include_item)
-        return [include_item.to_sym] unless include_item.to_s.include?('.')
-
-        include_item.to_s.split('.').map!(&:to_sym)
-      end
-
-      def remaining_items(items)
-        return unless items.size > 1
-
-        [items[1..-1].join('.').to_sym]
+      def parse_includes_list(includes_list)
+        includes_list.each_with_object({}) do |include_item, include_sets|
+          include_base, include_remainder = include_item.to_s.split('.', 2)
+          include_sets[include_base.to_sym] ||= Set.new
+          include_sets[include_base.to_sym] << include_remainder if include_remainder
+        end
       end
 
       # includes handler
@@ -111,40 +107,37 @@ module FastJsonapi
         return unless includes_list.present?
         return [] unless relationships_to_serialize
 
+        includes_list = parse_includes_list(includes_list)
+
         includes_list.each_with_object([]) do |include_item, included_records|
-          items = parse_include_item(include_item)
-          remaining_items = remaining_items(items)
+          next unless relationships_to_serialize[include_item.first]
 
-          items.each do |item|
-            next unless relationships_to_serialize[item]
+          relationship_item = relationships_to_serialize[include_item.first]
+          next unless relationship_item.include_relationship?(record, params)
 
-            relationship_item = relationships_to_serialize[item]
-            next unless relationship_item.include_relationship?(record, params)
+          relationship_type = relationship_item.relationship_type
 
-            relationship_type = relationship_item.relationship_type
+          included_objects = Array(relationship_item.fetch_associated_object(record, params))
+          next if included_objects.empty?
 
-            included_objects = Array(relationship_item.fetch_associated_object(record, params))
-            next if included_objects.empty?
+          static_serializer = relationship_item.static_serializer
+          static_record_type = relationship_item.static_record_type
 
-            static_serializer = relationship_item.static_serializer
-            static_record_type = relationship_item.static_record_type
+          included_objects.each do |inc_obj|
+            serializer = static_serializer || relationship_item.serializer_for(inc_obj, params)
+            record_type = static_record_type || serializer.record_type
 
-            included_objects.each do |inc_obj|
-              serializer = static_serializer || relationship_item.serializer_for(inc_obj, params)
-              record_type = static_record_type || serializer.record_type
-
-              if remaining_items.present?
-                serializer_records = serializer.get_included_records(inc_obj, remaining_items, known_included_objects, fieldsets, params)
-                included_records.concat(serializer_records) unless serializer_records.empty?
-              end
-
-              code = "#{record_type}_#{serializer.id_from_record(inc_obj, params)}"
-              next if known_included_objects.key?(code)
-
-              known_included_objects[code] = inc_obj
-
-              included_records << serializer.record_hash(inc_obj, fieldsets[record_type], includes_list, params)
+            if include_item.last.any?
+              serializer_records = serializer.get_included_records(inc_obj, include_item.last, known_included_objects, fieldsets, params)
+              included_records.concat(serializer_records) unless serializer_records.empty?
             end
+
+            code = "#{record_type}_#{serializer.id_from_record(inc_obj, params)}"
+            next if known_included_objects.key?(code)
+
+            known_included_objects[code] = inc_obj
+
+            included_records << serializer.record_hash(inc_obj, fieldsets[record_type], includes_list, params)
           end
         end
       end

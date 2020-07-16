@@ -337,21 +337,11 @@ module FastJsonapi
       def validate_includes!(includes)
         return if includes.blank?
 
-        includes.each do |include_item|
-          klass = self
-          parse_include_item(include_item).each do |parsed_include|
-            relationships_to_serialize = klass.relationships_to_serialize || {}
-            relationship_to_include = relationships_to_serialize[parsed_include]
-            raise ArgumentError, "#{parsed_include} is not specified as a relationship on #{klass.name}" unless relationship_to_include
+        parse_includes_list(includes).keys.each do |include_item|
+          relationship_to_include = relationships_to_serialize[include_item]
+          raise ArgumentError, "#{include_item} is not specified as a relationship on #{name}" unless relationship_to_include
 
-            if relationship_to_include.static_serializer
-              klass = relationship_to_include.static_serializer
-            else
-              # the serializer may change based on the object (e.g. polymorphic relationships),
-              # so inner relationships cannot be validated
-              break
-            end
-          end
+          relationship_to_include.static_serializer # called for a side-effect to check for a known serializer class.
         end
       end
     end
