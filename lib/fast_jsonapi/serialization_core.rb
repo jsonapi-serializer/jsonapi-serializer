@@ -111,7 +111,7 @@ module FastJsonapi
         return unless includes_list.present?
         return [] unless relationships_to_serialize
 
-        includes_list.sort.each_with_object([]) do |include_item, included_records|
+        includes_list.each_with_object([]) do |include_item, included_records|
           items = parse_include_item(include_item)
           remaining_items = remaining_items(items)
 
