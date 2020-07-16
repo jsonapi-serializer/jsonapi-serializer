@@ -123,10 +123,8 @@ module FastJsonapi
 
             relationship_type = relationship_item.relationship_type
 
-            included_objects = relationship_item.fetch_associated_object(record, params)
-            next if included_objects.blank?
-
-            included_objects = [included_objects] unless relationship_type == :has_many
+            included_objects = Array(relationship_item.fetch_associated_object(record, params))
+            next if included_objects.empty?
 
             static_serializer = relationship_item.static_serializer
             static_record_type = relationship_item.static_record_type
