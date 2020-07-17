@@ -110,10 +110,9 @@ module FastJsonapi
         includes_list = parse_includes_list(includes_list)
 
         includes_list.each_with_object([]) do |include_item, included_records|
-          next unless relationships_to_serialize[include_item.first]
-
           relationship_item = relationships_to_serialize[include_item.first]
-          next unless relationship_item.include_relationship?(record, params)
+
+          next unless relationship_item && relationship_item.include_relationship?(record, params)
 
           relationship_type = relationship_item.relationship_type
 
