@@ -112,7 +112,7 @@ module FastJsonapi
         includes_list.each_with_object([]) do |include_item, included_records|
           relationship_item = relationships_to_serialize[include_item.first]
 
-          next unless relationship_item && relationship_item.include_relationship?(record, params)
+          next unless relationship_item&.include_relationship?(record, params)
 
           included_objects = Array(relationship_item.fetch_associated_object(record, params))
           next if included_objects.empty?
