@@ -114,8 +114,6 @@ module FastJsonapi
 
           next unless relationship_item && relationship_item.include_relationship?(record, params)
 
-          relationship_type = relationship_item.relationship_type
-
           included_objects = Array(relationship_item.fetch_associated_object(record, params))
           next if included_objects.empty?
 
