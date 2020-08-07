@@ -469,6 +469,13 @@ class MovieSerializer
     # The director will be serialized only if the :admin key of params is true
     params && params[:admin] == true
   }
+  
+  # Custom attribute `name_year` will only be serialized if both `name` and `year` fields are present
+  attribute :name_year, if: Proc.new { |record|
+    record.name.present? && record.year.present?
+  } do |object|
+    "#{object.name} - #{object.year}"
+  end
 end
 
 # ...
