@@ -94,6 +94,32 @@ module FastJsonapi
         record.id
       end
 
+      # It chops out the root association (first part) from each include.
+      #
+      # It keeps an unique list and collects all of the rest of the include
+      # value to hand it off to the next related to include serializer.
+      #
+      # This method will turn that include array into a Hash that looks like:
+      #
+      #   {
+      #       authors: Set.new([
+      #         'books',
+      #         'books.genre',
+      #         'books.genre.books',
+      #         'books.genre.books.authors',
+      #         'books.genre.books.genre'
+      #       ]),
+      #       genre: Set.new(['books'])
+      #   }
+      #
+      # Because the serializer only cares about the root associations
+      # included, it only needs the first segment of each include
+      # (for books, it's the "authors" and "genre") and it doesn't need to
+      # waste cycles parsing the rest of the include value. That will be done
+      # by the next serializer in line.
+      #
+      # @param includes_list [List] to be parsed
+      # @return [Hash]
       def parse_includes_list(includes_list)
         includes_list.each_with_object({}) do |include_item, include_sets|
           include_base, include_remainder = include_item.to_s.split('.', 2)
