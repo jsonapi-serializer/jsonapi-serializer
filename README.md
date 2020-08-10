@@ -409,6 +409,25 @@ So for the example above it will call the cache instance like this:
 Rails.cache.fetch(record, namespace: 'jsonapi-serializer', expires_in: 1.hour) { ... }
 ```
 
+#### Caching and Sparse Fieldsets
+
+If caching is enabled and fields are provided to the serializer, the fieldset will be appended to the cache key's namespace.
+
+For example, given the following serializer definition and instance:
+```ruby
+class ActorSerializer
+  include JSONAPI::Serializer
+
+  attributes :first_name, :last_name
+
+  cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
+end
+
+serializer = ActorSerializer.new(actor, { fields: { actor: [:first_name] } })
+```
+
+The following cache namespace will be generated: `'jsonapi-serializer-fieldset:first_name'`.
+
 ### Params
 
 In some cases, attribute values might require more information than what is
@@ -469,7 +488,7 @@ class MovieSerializer
     # The director will be serialized only if the :admin key of params is true
     params && params[:admin] == true
   }
-  
+
   # Custom attribute `name_year` will only be serialized if both `name` and `year` fields are present
   attribute :name_year, if: Proc.new { |record|
     record.name.present? && record.year.present?

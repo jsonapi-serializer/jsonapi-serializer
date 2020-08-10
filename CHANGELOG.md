@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Remove `ObjectSerializer#serialized_json` (#91)
 
+### Fixed
+- Ensure caching correctly incorporates fieldset information into the cache key to prevent incorrect fieldset caching (#90)
+
 ## [1.7.2] - 2020-05-18
 ### Fixed
 - Relationship#record_type_for does not assign static record type for polymorphic relationships (#83)
