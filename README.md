@@ -38,6 +38,7 @@ article in the `docs` folder for any questions related to methodology.
   * [Specifying a Relationship Serializer](#specifying-a-relationship-serializer)
   * [Sparse Fieldsets](#sparse-fieldsets)
   * [Using helper methods](#using-helper-methods)
+* [Performance Instrumentation](#performance-instrumentation)
 * [Contributing](#contributing)
 
 
@@ -662,36 +663,27 @@ serializer | Set custom Serializer for a relationship | `has_many :actors, seria
 polymorphic | Allows different record types for a polymorphic association | `has_many :targets, polymorphic: true`
 polymorphic | Sets custom record types for each object class in a polymorphic association | `has_many :targets, polymorphic: { Person => :person, Group => :group }`
 
-### Instrumentation
+### Performance Instrumentation
 
-`fast_jsonapi` also has builtin [Skylight](https://www.skylight.io/) integration. To enable, add the following to an initializer:
+Performance instrumentation is available by using the
+`active_support/notifications`.
 
-```ruby
-require 'fast_jsonapi/instrumentation/skylight'
-```
-
-Skylight relies on `ActiveSupport::Notifications` to track these two core methods. If you would like to use these notifications without using Skylight, simply require the instrumentation integration:
+To enable it, include the module in your serializer class:
 
 ```ruby
-require 'fast_jsonapi/instrumentation'
+require 'jsonapi/serializer'
+require 'jsonapi/serializer/instrumentation'
+
+class MovieSerializer
+  include JSONAPI::Serializer
+  include JSONAPI::Serializer::Instrumentation
+
+  # ...
+end
 ```
 
-The two instrumented notifications are supplied by these two constants:
-* `JSONAPI::Serializer::SERIALIZABLE_HASH_NOTIFICATION`
-* `JSONAPI::Serializer::SERIALIZED_JSON_NOTIFICATION`
-
-It is also possible to instrument one method without the other by using one of the following require statements:
-
-```ruby
-require 'fast_jsonapi/instrumentation/serializable_hash'
-require 'fast_jsonapi/instrumentation/serialized_json'
-```
-
-Same goes for the Skylight integration:
-```ruby
-require 'fast_jsonapi/instrumentation/skylight/normalizers/serializable_hash'
-require 'fast_jsonapi/instrumentation/skylight/normalizers/serialized_json'
-```
+[Skylight](https://www.skylight.io/) integration is also available and
+supported by us, follow the Skylight documentation to enable it.
 
 ### Running Tests
 The project has and requires unit tests, functional tests and performance
