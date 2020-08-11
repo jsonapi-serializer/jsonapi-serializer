@@ -15,8 +15,6 @@ module FastJsonapi
     extend ActiveSupport::Concern
     include SerializationCore
 
-    SERIALIZABLE_HASH_NOTIFICATION = 'render.fast_jsonapi.serializable_hash'
-    SERIALIZED_JSON_NOTIFICATION = 'render.fast_jsonapi.serialized_json'
     TRANSFORMS_MAPPING = {
       camel: :camelize,
       camel_lower: [:camelize, :lower],

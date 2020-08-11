@@ -1,2 +1,3 @@
-require 'fast_jsonapi/instrumentation/skylight/normalizers/serializable_hash'
-require 'fast_jsonapi/instrumentation/skylight/normalizers/serialized_json'
+require 'skylight'
+
+warn('DEPRECATION: Skylight support was moved into the `skylight` gem.')

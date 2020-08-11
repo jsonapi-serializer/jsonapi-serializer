@@ -1,2 +1,7 @@
-require 'fast_jsonapi/instrumentation/serializable_hash'
-require 'fast_jsonapi/instrumentation/serialized_json'
+require 'jsonapi/serializer/instrumentation'
+
+warn(
+  'DEPRECATION: Performance instrumentation is no longer automatic. See: ' \
+  'https://github.com/jsonapi-serializer/jsonapi-serializer' \
+  '#performance-instrumentation'
+)
