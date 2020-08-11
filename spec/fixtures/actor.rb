@@ -1,4 +1,5 @@
 require 'active_support/cache'
+require 'jsonapi/serializer/instrumentation'
 
 class Actor < User
   attr_accessor :movies, :movie_ids
@@ -68,5 +69,11 @@ module Cached
       store: ActiveSupport::Cache::MemoryStore.new,
       namespace: 'test'
     )
+  end
+end
+
+module Instrumented
+  class ActorSerializer < ::ActorSerializer
+    include ::JSONAPI::Serializer::Instrumentation
   end
 end
