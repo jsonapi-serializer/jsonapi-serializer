@@ -23,7 +23,7 @@ cases.
 
 We came up with patterns that we can rely upon such as:
 
-* We always use [JSON:API](http://jsonapi.org/) for our APIs
+* We always use [JSON:API](https://jsonapi.org/) for our APIs
 * We almost always serialize a homogenous list of objects (Example: An array of
   movies)
 
