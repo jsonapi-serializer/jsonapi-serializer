@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe FastJsonapi::ObjectSerializer do
+RSpec.describe JSONAPI::Serializer do
   let(:actor) do
     act = Actor.fake
     act.movies = [Movie.fake]

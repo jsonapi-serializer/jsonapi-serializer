@@ -13,7 +13,7 @@ require 'oj'
 require 'fast_jsonapi'
 
 class BaseSerializer
-  include FastJsonapi::ObjectSerializer
+  include JSONAPI::Serializer
 
   def to_json
     Oj.dump(serializable_hash)

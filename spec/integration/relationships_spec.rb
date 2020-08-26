@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe FastJsonapi::ObjectSerializer do
+RSpec.describe JSONAPI::Serializer do
   let(:movie) do
     mov = Movie.fake
     mov.actors = rand(2..5).times.map { Actor.fake }

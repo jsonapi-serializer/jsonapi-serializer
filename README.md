@@ -677,8 +677,8 @@ require 'fast_jsonapi/instrumentation'
 ```
 
 The two instrumented notifications are supplied by these two constants:
-* `FastJsonapi::ObjectSerializer::SERIALIZABLE_HASH_NOTIFICATION`
-* `FastJsonapi::ObjectSerializer::SERIALIZED_JSON_NOTIFICATION`
+* `JSONAPI::Serializer::SERIALIZABLE_HASH_NOTIFICATION`
+* `JSONAPI::Serializer::SERIALIZED_JSON_NOTIFICATION`
 
 It is also possible to instrument one method without the other by using one of the following require statements:
 
