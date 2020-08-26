@@ -6,9 +6,9 @@ module FastJsonapi
     module Skylight
       module Normalizers
         class SerializedJson < SKYLIGHT_NORMALIZER_BASE_CLASS
-          register FastJsonapi::ObjectSerializer::SERIALIZED_JSON_NOTIFICATION
+          register JSONAPI::Serializer::SERIALIZED_JSON_NOTIFICATION
 
-          CAT = "view.#{FastJsonapi::ObjectSerializer::SERIALIZED_JSON_NOTIFICATION}".freeze
+          CAT = "view.#{JSONAPI::Serializer::SERIALIZED_JSON_NOTIFICATION}".freeze
 
           def normalize(_trace, _name, payload)
             [CAT, payload[:name], nil]

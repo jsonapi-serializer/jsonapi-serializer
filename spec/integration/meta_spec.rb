@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-RSpec.describe FastJsonapi::ObjectSerializer do
+RSpec.describe JSONAPI::Serializer do
   let(:user) { User.fake }
   let(:params) { {} }
   let(:serialized) do
