@@ -67,7 +67,8 @@ module FastJsonapi
 
       def record_hash(record, fieldset, includes_list, params = {})
         if cache_store_instance
-          record_hash = cache_store_instance.fetch(record, **cache_options_with_fieldsets(cache_store_options, fieldset)) do
+          cache_opts = record_cache_options(cache_store_options, fieldset, includes_list, params)
+          record_hash = cache_store_instance.fetch(record, **cache_opts) do
             temp_hash = id_hash(id_from_record(record, params), record_type, true)
             temp_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
             temp_hash[:relationships] = {}
@@ -87,19 +88,19 @@ module FastJsonapi
         record_hash
       end
 
+      # Cache options helper. Use it to adapt cache keys/rules.
       #
-      # It modifies cache options to include fieldset information in the cache namespace.
+      # If a fieldset is specified, it modifies the namespace to include the
+      # fields from the fieldset.
       #
-      # If a fieldset is specified, it modifies the namespace to include the fields from the fieldset.
-      #
-      # If no fieldset is specified, the namespace will be unaltered.
-      #
-      # @param [Hash] options cache options hash
-      # @param [Array, nil] fieldset fieldset array or nil if unspecified
+      # @param options [Hash] default cache options
+      # @param fieldset [Array, nil] passed fieldset values
+      # @param includes_list [Array, nil] passed included values
+      # @param params [Hash] the serializer params
       #
       # @return [Hash] processed options hash
-      #
-      def cache_options_with_fieldsets(options, fieldset)
+      # rubocop:disable Lint/UnusedMethodArgument
+      def record_cache_options(options, fieldset, includes_list, params)
         return options unless fieldset
 
         options = options ? options.dup : {}
@@ -107,11 +108,16 @@ module FastJsonapi
 
         fieldset_key = fieldset.join('_')
 
-        # Use a fixed-length fieldset key if the current length is more than the length of a SHA1 digest
-        fieldset_key = Digest::SHA1.hexdigest(fieldset_key) if fieldset_key.length > 40
+        # Use a fixed-length fieldset key if the current length is more than
+        # the length of a SHA1 digest
+        if fieldset_key.length > 40
+          fieldset_key = Digest::SHA1.hexdigest(fieldset_key)
+        end
+
         options[:namespace] = "#{options[:namespace]}-fieldset:#{fieldset_key}"
         options
       end
+      # rubocop:enable Lint/UnusedMethodArgument
 
       def id_from_record(record, params)
         return FastJsonapi.call_proc(record_id, record, params) if record_id.is_a?(Proc)
