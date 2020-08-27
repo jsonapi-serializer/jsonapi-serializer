@@ -36,7 +36,9 @@ module FastJsonapi
     end
 
     def serializable_hash
-      return hash_for_collection if is_collection?(@resource, @is_collection)
+      if self.class.is_collection?(@resource, @is_collection)
+        return hash_for_collection
+      end
 
       hash_for_one_record
     end
@@ -105,13 +107,16 @@ module FastJsonapi
       end
     end
 
-    def is_collection?(resource, force_is_collection = nil)
-      return force_is_collection unless force_is_collection.nil?
-
-      resource.respond_to?(:each) && !resource.respond_to?(:each_pair)
-    end
-
     class_methods do
+      # Detects a collection/enumerable
+      #
+      # @return [TrueClass] on a successful detection
+      def is_collection?(resource, force_is_collection = nil)
+        return force_is_collection unless force_is_collection.nil?
+
+        resource.is_a?(Enumerable) && !resource.respond_to?(:each_pair)
+      end
+
       def inherited(subclass)
         super(subclass)
         subclass.attributes_to_serialize = attributes_to_serialize.dup if attributes_to_serialize.present?
