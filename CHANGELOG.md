@@ -5,11 +5,28 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- ...
+
+## [2.1.0] - 2020-08-30
+
+### Added
+- Optional meta field to relationships (#99 #100)
+- Support for `params` on cache keys (#117)
+
 ### Changed
-- Remove `ObjectSerializer#serialized_json` (#91)
+- Performance instrumentation (#110 #39)
+- Improved collection detection (#112)
 
 ### Fixed
 - Ensure caching correctly incorporates fieldset information into the cache key to prevent incorrect fieldset caching (#90)
+- Performance optimizations for nested includes (#103)
+
+## [2.0.0] - 2020-06-22
+
+The project was renamed to `jsonapi-serializer`! (#94)
+
+### Changed
+- Remove `ObjectSerializer#serialized_json` (#91)
 
 ## [1.7.2] - 2020-05-18
 ### Fixed
