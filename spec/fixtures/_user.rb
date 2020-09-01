@@ -1,3 +1,5 @@
+require 'active_support/cache'
+
 class User
   attr_accessor :uid, :first_name, :last_name, :email
 
@@ -24,5 +26,14 @@ class UserSerializer
     {
       email_length: obj.email.size
     }
+  end
+end
+
+module Cached
+  class UserSerializer < ::UserSerializer
+    cache_options(
+      store: ActiveSupport::Cache::MemoryStore.new,
+      namespace: 'test'
+    )
   end
 end

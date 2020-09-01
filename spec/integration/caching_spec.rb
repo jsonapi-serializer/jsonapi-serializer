@@ -25,6 +25,16 @@ RSpec.describe JSONAPI::Serializer do
         cache_store.delete(actor.movies[0].owner, namespace: 'test')
       ).to be(false)
     end
+
+    context 'without relationships' do
+      let(:user) { User.fake }
+
+      let(:serialized) { Cached::UserSerializer.new(user).serializable_hash.as_json }
+
+      it do
+        expect(serialized['data']).not_to have_key('relationships')
+      end
+    end
   end
 
   describe 'with caching and different fieldsets' do
