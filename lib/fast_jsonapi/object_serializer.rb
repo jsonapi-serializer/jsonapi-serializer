@@ -49,8 +49,9 @@ module FastJsonapi
 
       return serializable_hash unless @resource
 
-      serializable_hash[:data] = self.class.record_hash(@resource, @fieldsets[self.class.record_type.to_sym], @includes, @params)
-      serializable_hash[:included] = self.class.get_included_records(@resource, @includes, @known_included_objects, @fieldsets, @params) if @includes.present?
+      serializer_class = serializer_for(@resource)
+      serializable_hash[:data] = serializer_class.record_hash(@resource, @fieldsets[serializer_class.record_type.to_sym], @includes, @params)
+      serializable_hash[:included] = serializer_class.get_included_records(@resource, @includes, @known_included_objects, @fieldsets, @params) if @includes.present?
       serializable_hash
     end
 
@@ -59,10 +60,11 @@ module FastJsonapi
 
       data = []
       included = []
-      fieldset = @fieldsets[self.class.record_type.to_sym]
       @resource.each do |record|
-        data << self.class.record_hash(record, fieldset, @includes, @params)
-        included.concat self.class.get_included_records(record, @includes, @known_included_objects, @fieldsets, @params) if @includes.present?
+        serializer_class = serializer_for(record)
+        fieldset = @fieldsets[serializer_class.record_type.to_sym]
+        data << serializer_class.record_hash(record, fieldset, @includes, @params)
+        included.concat serializer_class.get_included_records(record, @includes, @known_included_objects, @fieldsets, @params) if @includes.present?
       end
 
       serializable_hash[:data] = data
@@ -91,6 +93,12 @@ module FastJsonapi
         @includes = options[:include].reject(&:blank?).map(&:to_sym)
         self.class.validate_includes!(@includes)
       end
+
+      @serializers = options.fetch(:serializers, {}).transform_keys do |key|
+        next key if key.is_a?(Class)
+
+        key.to_s.constantize
+      end
     end
 
     def deep_symbolize(collection)
@@ -103,6 +111,12 @@ module FastJsonapi
       else
         collection.to_sym
       end
+    end
+
+    def serializer_for(record)
+      return self.class if @serializers.blank?
+
+      @serializers[record.class] || raise(ArgumentError, "no serializer defined for #{record.class}")
     end
 
     class_methods do
