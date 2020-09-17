@@ -342,7 +342,7 @@ module FastJsonapi
 
         parse_includes_list(includes).keys.each do |include_item|
           relationship_to_include = relationships_to_serialize[include_item]
-          raise ArgumentError, "#{include_item} is not specified as a relationship on #{name}" unless relationship_to_include
+          raise(JSONAPI::Serializer::UnsupportedIncludeError.new(include_item, name)) unless relationship_to_include
 
           relationship_to_include.static_serializer # called for a side-effect to check for a known serializer class.
         end

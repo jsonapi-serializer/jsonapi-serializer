@@ -18,7 +18,7 @@ RSpec.describe JSONAPI::Serializer do
     it do
       expect { ActorSerializer.new(actor, include: ['bad_include']) }
         .to raise_error(
-          ArgumentError, /bad_include is not specified as a relationship/
+          JSONAPI::Serializer::UnsupportedIncludeError, /bad_include is not specified as a relationship/
         )
     end
   end
