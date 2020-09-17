@@ -8,7 +8,9 @@ class Movie
     :actor_ids,
     :polymorphics,
     :owner,
-    :owner_id
+    :owner_id,
+    :comments,
+    :comment_ids
   )
 
   def self.fake(id = nil)
@@ -19,6 +21,8 @@ class Movie
     faked.actors = []
     faked.actor_ids = []
     faked.polymorphics = []
+    faked.comments = []
+    faked.comment_ids = []
     faked
   end
 
@@ -40,6 +44,11 @@ class Movie
       actor.movies << self
       actor.uid
     end
+  end
+
+  def comments=(comments)
+    @comments = comments
+    @comment_ids = comments.map(&:uid)
   end
 end
 
@@ -103,6 +112,15 @@ class MovieSerializer
   ) do |obj|
     obj.polymorphics
   end
+
+  has_many(
+    :comments,
+    lazy_load_data: proc { |_, params| params[:lazy_load_comments_data] },
+    links: {
+      comments_self: :url,
+      related: ->(obj) { obj.url(obj) }
+    }
+  )
 end
 
 module Cached

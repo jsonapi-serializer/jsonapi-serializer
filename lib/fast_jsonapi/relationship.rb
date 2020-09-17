@@ -45,7 +45,7 @@ module FastJsonapi
         empty_case = relationship_type == :has_many ? [] : nil
 
         output_hash[key] = {}
-        output_hash[key][:data] = ids_hash_from_record_and_relationship(record, serialization_params) || empty_case unless lazy_load_data && !included
+        output_hash[key][:data] = ids_hash_from_record_and_relationship(record, serialization_params) || empty_case unless lazy_load_data?(record, serialization_params) && !included
 
         add_meta_hash(record, serialization_params, output_hash) if meta.present?
         add_links_hash(record, serialization_params, output_hash) if links.present?
@@ -99,6 +99,10 @@ module FastJsonapi
     end
 
     private
+
+    def lazy_load_data?(record, serialization_params)
+      lazy_load_data.is_a?(Proc) ? FastJsonapi.call_proc(lazy_load_data, record, serialization_params) : lazy_load_data
+    end
 
     def ids_hash_from_record_and_relationship(record, params = {})
       initialize_static_serializer unless @initialized_static_serializer

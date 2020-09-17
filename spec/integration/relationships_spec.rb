@@ -9,6 +9,7 @@ RSpec.describe JSONAPI::Serializer do
     poly_act.movies = [Movie.fake]
     mov.polymorphics = [User.fake, poly_act]
     mov.actor_or_user = Actor.fake
+    mov.comments = [Comment.fake]
     mov
   end
   let(:params) { {} }
@@ -57,6 +58,36 @@ RSpec.describe JSONAPI::Serializer do
             { 'id' => movie.polymorphics[1].uid, 'type' => 'actor' }
           ]
         )
+    end
+
+    describe 'lazy_load_data' do
+      context 'when no parameters are given' do
+        it do
+          expect(serialized['data'])
+            .to have_relationship('comments')
+            .with_data(
+              [
+                { 'id' => movie.comments[0].uid, 'type' => 'comment' }
+              ]
+            )
+        end
+      end
+
+      context 'when lazy_load_data parameter is given' do
+        let(:params) { { params: { lazy_load_comments_data: true } } }
+
+        it do
+          expect(serialized['data']).to have_relationship('comments').with_data(nil)
+        end
+
+        it do
+          expect(serialized['data']['relationships']['comments'])
+            .to have_link('comments_self').with_value(movie.url)
+
+          expect(serialized['data']['relationships']['comments'])
+            .to have_link('related').with_value(movie.url(movie))
+        end
+      end
     end
 
     describe 'has relationship meta' do

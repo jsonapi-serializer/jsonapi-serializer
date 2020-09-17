@@ -301,6 +301,17 @@ This will create a `self` reference for the relationship, and a `related` link f
   }
 ```
 
+The value of `lazy_load_data` can be a proc if you need to use it depending on external parameters
+
+```ruby
+  has_many :actors, lazy_load_data: proc { |_, params| params[:lazy_load_actors_data] }, links: {
+    self: :url,
+    related: -> (object) {
+      "https://movies.com/#{object.id}/actors"
+    }
+  }
+```
+
 ### Meta Per Resource
 
 For every resource in the collection, you can include a meta object containing non-standard meta-information about a resource that can not be represented as an attribute or relationship.

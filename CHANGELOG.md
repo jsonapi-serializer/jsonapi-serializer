@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 - ...
+## [2.2.0] - 2020-09-17
+
+### Added
+- Support procs as the value of lazy_load_data parameter in has_many relationships
 
 ## [2.1.0] - 2020-08-30
 
