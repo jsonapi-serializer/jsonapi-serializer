@@ -21,13 +21,15 @@ end
 class ActorSerializer < UserSerializer
   set_type :actor
 
-  attribute :email, if: ->(_object, params) { params[:conditionals_off].nil? }
+  attribute :email, if: ->(_object, params) { params[:if_conditionals_off].nil? },
+                    unless: -> (_object, params) { params[:unless_conditionals_off].present? }
 
   has_many(
     :played_movies,
     serializer: :movie,
     links: :movie_urls,
-    if: ->(_object, params) { params[:conditionals_off].nil? }
+    if: ->(_object, params) { params[:if_conditionals_off].nil? },
+    unless: -> (_object, params) { params[:unless_conditionals_off].present? }
   ) do |object|
     object.movies
   end
