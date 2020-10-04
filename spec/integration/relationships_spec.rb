@@ -104,18 +104,18 @@ RSpec.describe JSONAPI::Serializer do
       context 'with `unless` conditions' do
         let(:params) do
           {
-              include: ['actors'],
-              params: { unless_conditionals_off: 'yes' }
+            include: ['actors'],
+            params: { unless_conditionals_off: 'yes' }
           }
         end
 
         it do
           movie.actors.each do |actor|
             expect(serialized['included']).not_to include(
-                                                      have_type('actor')
-                                                          .and(have_id(actor.uid))
-                                                          .and(have_relationship('played_movies'))
-                                                  )
+              have_type('actor')
+                  .and(have_id(actor.uid))
+                  .and(have_relationship('played_movies'))
+            )
           end
         end
       end
