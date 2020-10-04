@@ -1,6 +1,6 @@
 module FastJsonapi
   class Relationship
-    attr_reader :owner, :key, :name, :id_method_name, :record_type, :object_method_name, :object_block, :serializer, :relationship_type, :cached, :polymorphic, :conditional_proc, :transform_method, :links, :meta, :lazy_load_data
+    attr_reader :owner, :key, :name, :id_method_name, :record_type, :object_method_name, :object_block, :serializer, :relationship_type, :cached, :polymorphic, :conditional, :transform_method, :links, :meta, :lazy_load_data
 
     def initialize(
       owner:,
@@ -14,7 +14,7 @@ module FastJsonapi
       relationship_type:,
       cached: false,
       polymorphic:,
-      conditional_proc:,
+      conditional:,
       transform_method:,
       links:,
       meta:,
@@ -31,7 +31,7 @@ module FastJsonapi
       @relationship_type = relationship_type
       @cached = cached
       @polymorphic = polymorphic
-      @conditional_proc = conditional_proc
+      @conditional = conditional
       @transform_method = transform_method
       @links = links || {}
       @meta = meta || {}
@@ -59,11 +59,7 @@ module FastJsonapi
     end
 
     def include_relationship?(record, serialization_params)
-      if conditional_proc.present?
-        FastJsonapi.call_proc(conditional_proc, record, serialization_params)
-      else
-        true
-      end
+      conditional.allowed?(record: record, serialization_params: serialization_params)
     end
 
     def serializer_for(record, serialization_params)
