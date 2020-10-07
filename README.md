@@ -39,6 +39,7 @@ article in the `docs` folder for any questions related to methodology.
   * [Sparse Fieldsets](#sparse-fieldsets)
   * [Using helper methods](#using-helper-methods)
 * [Performance Instrumentation](#performance-instrumentation)
+* [Deserialization](#deserialization)
 * [Contributing](#contributing)
 
 
@@ -692,6 +693,18 @@ tests. To run tests use the following command:
 ```bash
 rspec
 ```
+
+## Deserialization
+We currently do not support deserialization, but we recommend to use any of the next gems:
+
+### [JSONAPI.rb](https://github.com/stas/jsonapi.rb)
+
+This gem provides the next features alongside deserialization:
+- Collection meta
+- Error handling
+- Includes and sparse fields
+- Filtering and sorting
+- Pagination
 
 ## Contributing
 
