@@ -2,6 +2,9 @@ require:
   - rubocop-performance
   - rubocop-rspec
 
+AllCops:
+    NewCops: enable
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
@@ -38,41 +41,25 @@ Performance/TimesMap:
   Exclude:
     - 'spec/**/**.rb'
 
-# TODO: Fix these...
-Style/Documentation:
+Metrics/ModuleLength:
   Enabled: false
-
-Style/GuardClause:
-  Exclude:
-    - 'lib/**/**.rb'
-
-Style/ConditionalAssignment:
-  Exclude:
-    - 'lib/**/**.rb'
-
-Style/IfUnlessModifier:
-  Exclude:
-    - 'lib/**/**.rb'
-
-Lint/AssignmentInCondition:
-  Exclude:
-    - 'lib/**/**.rb'
-
-Metrics:
-  Exclude:
-    - 'lib/**/**.rb'
 
 Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/**.rb'
+
+Metrics/MethodLength:
   Enabled: false
 
-Layout/LineLength:
-  Exclude:
-    - 'lib/**/**.rb'
+Metrics/CyclomaticComplexity:
+  Max: 12
 
-Naming/PredicateName:
-  Exclude:
-    - 'lib/**/**.rb'
+Metrics/PerceivedComplexity:
+  Max: 12
+
+Metrics/AbcSize:
+  Max: 36
 
 Naming/AccessorMethodName:
   Exclude:
-    - 'lib/**/**.rb'
+    - '**/**/dsl.rb'

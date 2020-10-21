@@ -10,9 +10,9 @@ RSpec.describe JSONAPI::Serializer do
 
   it do
     payload = event_name = nil
-    notification_name = (
-      ::JSONAPI::Serializer::Instrumentation::NOTIFICATION_NAMESPACE +
-        'serializable_hash'
+    notification_name = ''.concat(
+      ::JSONAPI::Serializer::Instrumentation::NOTIFICATION_NAMESPACE,
+      'serializable_hash'
     )
 
     ActiveSupport::Notifications.subscribe(

@@ -26,7 +26,7 @@ class Movie
     @url ||= FFaker::Internet.http_url
     return @url if obj.nil?
 
-    @url + '?' + obj.hash.to_s
+    "#{@url}?#{obj.hash}"
   end
 
   def owner=(ownr)
@@ -53,16 +53,17 @@ class MovieSerializer
     object.year
   end
 
-  link :self, :url
+  link :self, :url, if: ->(object, _params) { object.is_a?(Movie) }
 
   belongs_to :owner, serializer: UserSerializer
 
-  belongs_to :actor_or_user,
-             id_method_name: :uid,
-             polymorphic: {
-               Actor => :actor,
-               User => :user
-             }
+  belongs_to(
+    :actor_or_user,
+    serializers: {
+      Actor => ActorSerializer,
+      User => UserSerializer
+    }
+  )
 
   has_many(
     :actors,
@@ -74,52 +75,41 @@ class MovieSerializer
   )
   has_one(
     :creator,
-    object_method_name: :owner,
-    id_method_name: :uid,
     serializer: ->(object, _params) { UserSerializer if object.is_a?(User) }
-  )
+  ) do |object|
+    object.owner
+  end
   has_many(
     :actors_and_users,
-    id_method_name: :uid,
-    polymorphic: {
-      Actor => :actor,
-      User => :user
+    serializers: {
+      Actor => ActorSerializer,
+      User => UserSerializer
     }
   ) do |obj|
     obj.polymorphics
   end
 
-  has_many(
-    :dynamic_actors_and_users,
-    id_method_name: :uid,
-    polymorphic: true
-  ) do |obj|
+  has_many(:dynamic_actors_and_users) do |obj|
     obj.polymorphics
   end
 
-  has_many(
-    :auto_detected_actors_and_users,
-    id_method_name: :uid
-  ) do |obj|
+  has_many(:auto_detected_actors_and_users) do |obj|
     obj.polymorphics
   end
 end
 
 module Cached
+  class Movie < ::Movie; end
+
   class MovieSerializer < ::MovieSerializer
+    set_type :cached_movie
+
     cache_options(
       store: ActorSerializer.cache_store_instance,
       namespace: 'test'
     )
 
-    has_one(
-      :creator,
-      id_method_name: :uid,
-      serializer: :actor,
-      # TODO: Remove this undocumented option.
-      #   Delegate the caching to the serializer exclusively.
-      cached: false
-    ) do |obj|
+    has_one(:creator, serializer: :cached_actor) do |obj|
       obj.owner
     end
   end
