@@ -40,7 +40,7 @@ article in the `docs` folder for any questions related to methodology.
   * [Using helper methods](#using-helper-methods)
 * [Performance Instrumentation](#performance-instrumentation)
 * [Deserialization](#deserialization)
-* [Migrating from Netflix/fast_jsonapi](#migrating-from-netflix-fast-jsonapi)
+* [Migrating from Netflix/fast_jsonapi](#migrating-from-netflixfast_jsonapi)
 * [Contributing](#contributing)
 
 
