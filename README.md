@@ -40,6 +40,7 @@ article in the `docs` folder for any questions related to methodology.
   * [Using helper methods](#using-helper-methods)
 * [Performance Instrumentation](#performance-instrumentation)
 * [Deserialization](#deserialization)
+* [Migrating from Netflix/fast_jsonapi](#migrating-from-netflix-fast-jsonapi)
 * [Contributing](#contributing)
 
 
@@ -705,6 +706,49 @@ This gem provides the next features alongside deserialization:
 - Includes and sparse fields
 - Filtering and sorting
 - Pagination
+
+## Migrating from Netflix/fast_jsonapi
+
+If you come from [Netflix/fast_jsonapi](https://github.com/Netflix/fast_jsonapi), here is the instructions to switch.
+
+### Modify your Gemfile
+
+```diff
+- gem 'fast_jsonapi'
++ gem 'jsonapi-serializer'
+```
+
+### Replace all constant references
+
+```diff
+class MovieSerializer
+- include FastJsonapi::ObjectSerializer
++ include JSONAPI::Serializer
+end
+```
+
+### Replace removed methods
+
+```diff
+- json_string = MovieSerializer.new(movie).serialized_json
++ json_string = MovieSerializer.new(movie).serializable_hash.to_json
+```
+
+### Replace require references
+
+```diff
+- require 'fast_jsonapi'
++ require 'jsonapi-serializer'
+```
+
+### Update your cache options
+
+See [docs](https://github.com/jsonapi-serializer/jsonapi-serializer#caching).
+
+```diff
+- cache_options enabled: true, cache_length: 12.hours
++ cache_options store: Rails.cache, namespace: 'fast-jsonapi', expires_in: 1.hour
+```
 
 ## Contributing
 
