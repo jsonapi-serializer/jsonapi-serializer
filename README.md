@@ -747,7 +747,7 @@ See [docs](https://github.com/jsonapi-serializer/jsonapi-serializer#caching).
 
 ```diff
 - cache_options enabled: true, cache_length: 12.hours
-+ cache_options store: Rails.cache, namespace: 'fast-jsonapi', expires_in: 1.hour
++ cache_options store: Rails.cache, namespace: 'jsonapi-serializer', expires_in: 1.hour
 ```
 
 ## Contributing
