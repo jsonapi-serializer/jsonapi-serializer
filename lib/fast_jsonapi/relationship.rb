@@ -118,7 +118,7 @@ module FastJsonapi
 
     def id_hash_from_record(record, params)
       associated_record_type = record_type_for(record, params)
-      id_hash(record.public_send(id_method_name), associated_record_type)
+      id_hash(record_id_value(record), associated_record_type)
     end
 
     def ids_hash(ids, record_type)
@@ -138,11 +138,21 @@ module FastJsonapi
     def fetch_id(record, params)
       if object_block.present?
         object = FastJsonapi.call_proc(object_block, record, params)
-        return object.map { |item| item.public_send(id_method_name) } if object.respond_to? :map
+        return object.map { |item| record_id_value(item) } if object.respond_to? :map
 
-        return object.try(id_method_name)
+        return record_id_value(object) { object.try(id_method_name) }
       end
-      record.public_send(id_method_name)
+      record_id_value(record)
+    end
+
+    def record_id_value(record)
+      if id_method_name.is_a?(Proc)
+        id_method_name.call(record)
+      elsif block_given?
+        yield(record)
+      else
+        record.public_send(id_method_name)
+      end
     end
 
     def add_links_hash(record, params, output_hash)
