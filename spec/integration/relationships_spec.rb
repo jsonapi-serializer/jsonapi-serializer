@@ -141,6 +141,35 @@ RSpec.describe JSONAPI::Serializer do
           )
         end
       end
+
+      context 'with lazy loading' do
+        let(:params) do
+          { include: ['lazy_actors.lazy_played_movies'] }
+        end
+
+        it do
+          actors_rel = movie.actors.map { |a| { 'id' => a.uid, 'type' => 'actor' } }
+
+          expect(serialized['data']).to have_relationship('lazy_actors').with_data(actors_rel)
+
+          expect(serialized['included']).to include(
+            have_type('actor')
+            .and(have_id(movie.actors[0].uid))
+            .and(
+              have_relationship('lazy_played_movies').with_data(
+                [{
+                  'id' => movie.actors[0].movies[0].id,
+                  'type' => 'movie'
+                }]
+              )
+            )
+          )
+
+          expect(serialized['included']).to include(
+            have_type('movie').and(have_id(movie.actors[0].movies[0].id))
+          )
+        end
+      end
     end
   end
 end

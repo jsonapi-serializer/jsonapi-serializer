@@ -31,6 +31,14 @@ class ActorSerializer < UserSerializer
   ) do |object|
     object.movies
   end
+
+  has_many(
+    :lazy_played_movies,
+    lazy_load_data: true,
+    serializer: :movie
+  ) do |object|
+    object.movies
+  end
 end
 
 class CamelCaseActorSerializer
