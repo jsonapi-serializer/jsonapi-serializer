@@ -460,7 +460,7 @@ class MovieSerializer
 
   belongs_to :primary_agent do |movie, params|
     # in here, params is a hash containing the `:current_user` key
-    params[:current_user].is_employee? ? true : false
+    params[:current_user]
   end
 end
 
