@@ -72,15 +72,22 @@ class MovieSerializer
       related: ->(obj) { obj.url(obj) }
     }
   )
+
+  has_many :actors_from_block, serializer: ActorSerializer do |object|
+    object.actors
+  end
+
+  has_many :lazy_actors, serializer: ActorSerializer, lazy_load_data: true do |object|
+    object.actors
+  end
+
   has_one(
     :creator,
     object_method_name: :owner,
-    id_method_name: :uid,
     serializer: ->(object, _params) { UserSerializer if object.is_a?(User) }
   )
   has_many(
     :actors_and_users,
-    id_method_name: :uid,
     polymorphic: {
       Actor => :actor,
       User => :user

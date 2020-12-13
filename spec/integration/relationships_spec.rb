@@ -141,6 +141,50 @@ RSpec.describe JSONAPI::Serializer do
           )
         end
       end
+
+      context 'without id_method_name' do
+        context 'with an object block' do
+          let(:params) do
+            { include: ['actors_from_block'] }
+          end
+
+          it 'uses the serializer to determine the related object IDs' do
+            actors_rel = movie.actors.map { |a| { 'id' => a.uid, 'type' => 'actor' } }
+
+            expect(serialized['data'])
+              .to have_relationship('actors_from_block')
+              .with_data(actors_rel)
+
+            movie.actors.each do |actor|
+              expect(serialized['included']).to include(
+                have_type('actor')
+                .and(have_id(actor.uid))
+              )
+            end
+          end
+        end
+
+        context 'with lazy loading' do
+          let(:params) do
+            { include: ['lazy_actors'] }
+          end
+
+          it 'uses the serializer to determine the related object IDs' do
+            actors_rel = movie.actors.map { |a| { 'id' => a.uid, 'type' => 'actor' } }
+
+            expect(serialized['data'])
+              .to have_relationship('lazy_actors')
+              .with_data(actors_rel)
+
+            movie.actors.each do |actor|
+              expect(serialized['included']).to include(
+                have_type('actor')
+                .and(have_id(actor.uid))
+              )
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -98,6 +98,18 @@ module FastJsonapi
       @static_record_type
     end
 
+    def has_many?
+      relationship_type == :has_many
+    end
+
+    def belongs_to?
+      relationship_type == :belongs_to
+    end
+
+    def has_one?
+      relationship_type == :has_one
+    end
+
     private
 
     def ids_hash_from_record_and_relationship(record, params = {})
@@ -107,18 +119,28 @@ module FastJsonapi
 
       return unless associated_object = fetch_associated_object(record, params)
 
-      if associated_object.respond_to? :map
-        return associated_object.map do |object|
-          id_hash_from_record object, params
-        end
+      if has_many?
+        associated_object.map { |object| id_hash_from_record(object, params) }
+      else
+        id_hash_from_record associated_object, params
       end
-
-      id_hash_from_record associated_object, params
     end
 
     def id_hash_from_record(record, params)
       associated_record_type = record_type_for(record, params)
-      id_hash(record.public_send(id_method_name), associated_record_type)
+
+      if id_method_name && record.respond_to?(id_method_name)
+        #
+        # TODO: The serializer for a relationship should always be the single source of truth for determining the ID of
+        #       a related record. Currently it is possible to use the `id_method_name` of a relationship for this
+        #       purpose, so to maintain backwards compatibility this code path is maintained.
+        #       Eventually this should be removed.
+        #
+        return id_hash(record.public_send(id_method_name), associated_record_type)
+      end
+
+      serializer = serializer_for(record, params)
+      id_hash(serializer.id_from_record(record, params), associated_record_type)
     end
 
     def ids_hash(ids, record_type)
@@ -136,13 +158,39 @@ module FastJsonapi
     end
 
     def fetch_id(record, params)
-      if object_block.present?
-        object = FastJsonapi.call_proc(object_block, record, params)
-        return object.map { |item| item.public_send(id_method_name) } if object.respond_to? :map
+      if object_block.nil?
+        #
+        # TODO: This line assumes the `id_method_name` is a foreign key defined on the parent record.
+        #       The `id_method_name` option should be replaced with `foreign_key` to make the intent
+        #       explicit.
+        #
+        foreign_key = id_method_name
+        foreign_key ||= (has_many? ? "#{@name.to_s.singularize}_ids" : "#{@name}_id")
 
-        return object.try(id_method_name)
+        return record.public_send(foreign_key) if record.respond_to?(foreign_key)
       end
-      record.public_send(id_method_name)
+
+      return unless object = fetch_associated_object(record, params)
+
+      #
+      # TODO: The serializer for a relationship should always be the single source of truth for determining the ID of
+      #       a related record. This code path assumes that the `id_method_name` should be called on the child record.
+      #       This code path should be removed when `id_method_name` is replaced with `foreign_key`
+      #
+      if id_method_name
+        if has_many? && object.first.respond_to?(id_method_name)
+          return object.map { |item| item.public_send(id_method_name) }
+        elsif object.respond_to?(id_method_name)
+          return object.public_send(id_method_name)
+        end
+      end
+
+      serializer = serializer_for(object, params)
+      if has_many?
+        object.map { |item| serializer.id_from_record(item, params) }
+      elsif object
+        serializer.id_from_record(object, params)
+      end
     end
 
     def add_links_hash(record, params, output_hash)

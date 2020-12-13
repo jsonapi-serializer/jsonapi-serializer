@@ -257,26 +257,13 @@ module FastJsonapi
 
       def create_relationship(base_key, relationship_type, options, block)
         name = base_key.to_sym
-        if relationship_type == :has_many
-          base_serialization_key = base_key.to_s.singularize
-          id_postfix = '_ids'
-        else
-          base_serialization_key = base_key
-          id_postfix = '_id'
-        end
         polymorphic = fetch_polymorphic_option(options)
 
         Relationship.new(
           owner: self,
           key: options[:key] || run_key_transform(base_key),
           name: name,
-          id_method_name: compute_id_method_name(
-            options[:id_method_name],
-            "#{base_serialization_key}#{id_postfix}".to_sym,
-            polymorphic,
-            options[:serializer],
-            block
-          ),
+          id_method_name: options[:id_method_name],
           record_type: options[:record_type],
           object_method_name: options[:object_method_name] || name,
           object_block: block,
@@ -290,14 +277,6 @@ module FastJsonapi
           links: options[:links],
           lazy_load_data: options[:lazy_load_data]
         )
-      end
-
-      def compute_id_method_name(custom_id_method_name, id_method_name_from_relationship, polymorphic, serializer, block)
-        if block.present? || serializer.is_a?(Proc) || polymorphic
-          custom_id_method_name || :id
-        else
-          custom_id_method_name || id_method_name_from_relationship
-        end
       end
 
       def serializer_for(name)
