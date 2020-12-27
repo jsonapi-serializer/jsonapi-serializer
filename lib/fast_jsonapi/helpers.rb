@@ -10,7 +10,7 @@ module FastJsonapi
       # from explictly defined procs/lambdas, so we can't deduce the number of
       # parameters from the array length. Instead, look for an unnamed
       # parameter in the first position just pass the record as the receiver obj.
-      if proc.parameters.length > 0 && proc.parameters.first[1].nil?
+      if proc.parameters.positive? && !proc.parameters.empty?
         proc.call(params.first)
       else
         proc.call(*params.take(proc.parameters.length))
