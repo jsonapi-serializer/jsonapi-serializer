@@ -48,8 +48,9 @@ class MovieSerializer
 
   set_type :movie
 
+  attribute :released_in_year, &:year
   attributes :name
-  attribute :release_year do |object|
+  attribute :release_year do |object, params|
     object.year
   end
 
