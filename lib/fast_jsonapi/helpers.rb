@@ -8,9 +8,10 @@ module FastJsonapi
     def call_proc(proc, *params)
       # The parameters array for a lambda created from a symbol (&:foo) differs
       # from explictly defined procs/lambdas, so we can't deduce the number of
-      # parameters from the array length. Instead, look for an unnamed
-      # parameter in the first position just pass the record as the receiver obj.
-      if proc.parameters.positive? && !proc.parameters.empty?
+      # parameters from the array length (and differs between Ruby 2.x and 3).
+      # In the case of negative arity -- unlimited/unknown argument count --
+      # just send the object to act as the method receiver.
+      if proc.arity.negative?
         proc.call(params.first)
       else
         proc.call(*params.take(proc.parameters.length))
