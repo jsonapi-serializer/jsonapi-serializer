@@ -143,6 +143,30 @@ RSpec.describe JSONAPI::Serializer do
       end
     end
 
+    context 'with a filter using a filter method' do
+      let(:params) { { params: { limit_relationships: true } } }
+
+      let(:serialized) do
+        MethodFilteredMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized.dig('data', 'relationships').keys).to match_array(%w[actors creator])
+      end
+    end
+
+    context 'with a filter using a filter block' do
+      let(:params) { { params: { limit_relationships: true } } }
+
+      let(:serialized) do
+        CallableFilteredMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized.dig('data', 'relationships').keys).to match_array(%w[actors creator])
+      end
+    end
+
     context 'with a callable as relationship links' do
       let(:serialized) do
         CallableLinksMovieSerializer.new(movie, params).serializable_hash.as_json
