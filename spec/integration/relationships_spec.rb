@@ -142,5 +142,18 @@ RSpec.describe JSONAPI::Serializer do
         end
       end
     end
+
+    context 'with a callable as relationship links' do
+      let(:serialized) do
+        CallableLinksMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized['data']['relationships']['first_two_actors'])
+          .to have_link('some').with_value(movie.id)
+        expect(serialized['data']['relationships']['first_two_actors'])
+          .to have_link('fancy').with_value('here')
+      end
+    end
   end
 end

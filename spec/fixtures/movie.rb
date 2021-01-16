@@ -124,3 +124,15 @@ module Cached
     end
   end
 end
+
+class CallableLinksMovieSerializer < ::MovieSerializer
+  has_many(
+    :first_two_actors,
+    id_method_name: :uid,
+    links: lambda do |record, params|
+      { some: record.id, fancy: 'here' }
+    end
+  ) do |record, params|
+    record.actors.take(2)
+  end
+end

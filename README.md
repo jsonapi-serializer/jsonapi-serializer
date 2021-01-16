@@ -305,6 +305,17 @@ This will create a `self` reference for the relationship, and a `related` link f
   }
 ```
 
+Relationship links can also be configured to be defined as a callable.
+
+```ruby
+  has_many :actors, links: -> (object, params) {
+    {
+      self: "https://movies.com/#{object.id}/relationships/actors",
+      next: "https://movies.com/#{object.id}/relationships/actors?page%5Bnumber%5D=2&page%5Bsize%5D=10"
+    }
+  }
+```
+
 ### Meta Per Resource
 
 For every resource in the collection, you can include a meta object containing non-standard meta-information about a resource that can not be represented as an attribute or relationship.
