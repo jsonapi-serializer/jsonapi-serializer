@@ -19,9 +19,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
   gem.extra_rdoc_files = ['LICENSE.txt', 'README.md']
 
-  gem.add_runtime_dependency('activesupport', '>= 4.2')
-
-  gem.add_development_dependency('activerecord')
+  gem.add_development_dependency('dry-inflector')
   gem.add_development_dependency('bundler')
   gem.add_development_dependency('byebug')
   gem.add_development_dependency('ffaker')
@@ -33,4 +31,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('rubocop-rspec')
   gem.add_development_dependency('simplecov')
   gem.add_development_dependency('sqlite3')
+  gem.add_development_dependency('activesupport')
 end

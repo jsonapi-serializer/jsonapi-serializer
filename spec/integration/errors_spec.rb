@@ -7,19 +7,14 @@ RSpec.describe JSONAPI::Serializer do
   describe 'with errors' do
     it do
       expect do
-        BadMovieSerializerActorSerializer.new(
-          actor, include: ['played_movies']
-        )
-      end.to raise_error(
-        NameError, /cannot resolve a serializer class for 'bad'/
-      )
+        BadMovieSerializerActorSerializer.new(actor).serializable_hash
+      end.to raise_error(JSONAPI::Serializer::NotFoundError)
     end
 
     it do
-      expect { ActorSerializer.new(actor, include: ['bad_include']) }
-        .to raise_error(
-          JSONAPI::Serializer::UnsupportedIncludeError, /bad_include is not specified as a relationship/
-        )
+      expect do
+        ActorSerializer.new(actor, include: ['bad_include']).serializable_hash
+      end.to raise_error(JSONAPI::Serializer::IncludeError)
     end
   end
 end

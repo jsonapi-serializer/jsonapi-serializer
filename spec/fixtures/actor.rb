@@ -46,22 +46,29 @@ class CamelCaseActorSerializer
     obj.movie_urls.values[0]
   end
 
-  has_many(
-    :played_movies,
-    serializer: :movie
-  ) do |object|
+  has_many(:played_movies, serializer: :movie) do |object|
     object.movies
   end
 end
 
+class DasherizedActorSerializer < CamelCaseActorSerializer
+  set_type :user_actor
+  set_key_transform :dash
+end
+
 class BadMovieSerializerActorSerializer < ActorSerializer
-  has_many :played_movies, serializer: :bad, object_method_name: :movies
+  has_many :played_movies do
+    self
+  end
 end
 
 module Cached
+  class Actor < ::Actor; end
+
   class ActorSerializer < ::ActorSerializer
-    # TODO: Fix this, the serializer gets cached on inherited classes...
-    has_many :played_movies, serializer: :movie do |object|
+    set_type :cached_actor
+
+    has_many(:played_movies, serializer: :cached_movie) do |object|
       object.movies
     end
 
