@@ -167,6 +167,27 @@ RSpec.describe JSONAPI::Serializer do
       end
     end
 
+    context 'with a relationships filter using both a method name and a block' do
+      let(:klass) do
+        Class.new do
+          include JSONAPI::Serializer
+
+          set_id :uid
+          attributes :first_name, :last_name, :email
+
+          relationships_filter :some_method do |superset, record, params|
+            []
+          end
+
+          def some_method
+            []
+          end
+        end
+      end
+
+      it { expect { klass }.to raise_error(ArgumentError, 'filter_method_name and block are mutually exclusive') }
+    end
+
     context 'with a callable as relationship links' do
       let(:serialized) do
         CallableLinksMovieSerializer.new(movie, params).serializable_hash.as_json

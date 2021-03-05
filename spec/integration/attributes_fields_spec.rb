@@ -98,5 +98,26 @@ RSpec.describe JSONAPI::Serializer do
           .to have_jsonapi_attributes('last_name', 'email').exactly
       end
     end
+
+    context 'with an attribute filter using both a method name and a block' do
+      let(:klass) do
+        Class.new do
+          include JSONAPI::Serializer
+
+          set_id :uid
+          attributes :first_name, :last_name, :email
+
+          attributes_filter :some_method do |superset, record, params|
+            []
+          end
+
+          def some_method
+            []
+          end
+        end
+      end
+
+      it { expect { klass }.to raise_error(ArgumentError, 'filter_method_name and block are mutually exclusive') }
+    end
   end
 end

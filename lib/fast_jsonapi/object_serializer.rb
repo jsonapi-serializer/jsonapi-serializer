@@ -302,11 +302,13 @@ module FastJsonapi
       #     The name of a class method used to filter the set of attributes. This method will receive the superset of attributes,
       #     the current record getting serialized and the serializer parameters passed along.
       #
-      # @yieldparam filter_block [#call]
+      # @param block [#call]
       #     If a block is provided instead of a method name, this is going to be called when building the attributes hash.
       #     The arguments to the block are the same as for the method: the superset of attributes, the record getting serialized
       #     and the serializer parameters.
       def attributes_filter(filter_method_name = nil, &block)
+        raise ArgumentError, 'filter_method_name and block are mutually exclusive' if filter_method_name && block_given?
+
         self.attributes_filter_method = filter_method_name || block
       end
 
@@ -318,11 +320,13 @@ module FastJsonapi
       #     The name of a class method used to filter the set of relationships. This method will receive the superset of relationships,
       #     the current record getting serialized and the serializer parameters passed along.
       #
-      # @yieldparam filter_block [#call]
+      # @param block [#call]
       #     If a block is provided instead of a method name, this is going to be called when building the relationships hash.
       #     The arguments to the block are the same as for the method: the superset of attributes, the record getting serialized
       #     and the serializer parameters.
       def relationships_filter(filter_method_name = nil, &block)
+        raise ArgumentError, 'filter_method_name and block are mutually exclusive' if filter_method_name && block_given?
+
         self.relationships_filter_method = filter_method_name || block
       end
 
