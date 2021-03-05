@@ -563,7 +563,7 @@ serializer = MovieSerializer.new(movie, { params: { admin: current_user.admin? }
 serializer.serializable_hash
 ```
 
-Just like with attributes, it might sometimes be more performant to reduce the number of relationships getting serialized in a single call rather than specifying and executing a single conditional Proc for every relationship. For this situation `relationships_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all relationships defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the relationships to serialize. It will be further reduced by an eventually provided fieldset.
+Just like with attributes, it might sometimes be more performant to reduce the number of relationships getting serialized in a single call rather than specifying and executing a single conditional Proc for every relationship. For this situation, `relationships_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all relationships defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the relationships to serialize. It will be further reduced by an eventually provided fieldset.
 
 ```ruby
 class MovieSerializer
