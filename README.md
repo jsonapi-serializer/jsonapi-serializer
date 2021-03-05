@@ -519,7 +519,7 @@ serializer = MovieSerializer.new(movie, { params: { admin: current_user.admin? }
 serializer.serializable_hash
 ```
 
-Sometimes it might be more performant to reduce the number of attributes getting serialized in a single call rather than specifying and executing a conditional Proc for every attribute. For this situation `attributes_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all attributes defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the attributes to serialize. It will be further reduced by an eventually provided fieldset.
+Sometimes it might be more performant to reduce the number of attributes getting serialized in a single call rather than specifying and executing a conditional Proc for every attribute. For this situation, `attributes_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all attributes defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the attributes to serialize. It will be further reduced by an eventually provided fieldset.
 
 ```ruby
 class MovieSerializer
