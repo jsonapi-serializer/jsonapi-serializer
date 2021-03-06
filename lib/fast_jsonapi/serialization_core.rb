@@ -61,7 +61,7 @@ module FastJsonapi
       #     If something callable, the result of that callable.
       #
       # @param superset [Hash]
-      #     The attributers or relationships to filter
+      #     The attributes or relationships to filter
       #
       # @param record [Object]
       #     The current record to get serialized
