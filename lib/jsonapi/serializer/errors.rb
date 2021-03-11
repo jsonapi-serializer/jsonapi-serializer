@@ -3,6 +3,7 @@
 module JSONAPI
   module Serializer
     class Error < StandardError; end
+
     class UnsupportedIncludeError < Error
       attr_reader :include_item, :klass
 
