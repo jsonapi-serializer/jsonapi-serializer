@@ -8,6 +8,7 @@ module JSONAPI
       attr_reader :include_item, :klass
 
       def initialize(include_item, klass)
+        super()
         @include_item = include_item
         @klass = klass
       end

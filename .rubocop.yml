@@ -2,6 +2,10 @@ require:
   - rubocop-performance
   - rubocop-rspec
 
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+
 Style/FrozenStringLiteralComment:
   Enabled: false
 
@@ -76,3 +80,20 @@ Naming/PredicateName:
 Naming/AccessorMethodName:
   Exclude:
     - 'lib/**/**.rb'
+
+Style/CaseLikeIf:
+  Exclude:
+    - 'lib/fast_jsonapi/object_serializer.rb'
+
+Style/OptionalBooleanParameter:
+  Exclude:
+    - 'lib/fast_jsonapi/serialization_core.rb'
+    - 'lib/fast_jsonapi/relationship.rb'
+
+Lint/DuplicateBranch:
+  Exclude:
+    - 'lib/fast_jsonapi/relationship.rb'
+
+Style/DocumentDynamicEvalDefinition:
+  Exclude:
+    - 'lib/extensions/has_one.rb'

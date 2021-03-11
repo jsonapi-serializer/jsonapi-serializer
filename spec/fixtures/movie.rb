@@ -26,7 +26,7 @@ class Movie
     @url ||= FFaker::Internet.http_url
     return @url if obj.nil?
 
-    @url + '?' + obj.hash.to_s
+    "#{@url}?#{obj.hash}"
   end
 
   def owner=(ownr)
