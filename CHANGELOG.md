@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - ...
 
+## [2.2.0] - 2021-03-11
+
+### Added
+- Proper error is raised on unsupported includes (#125)
+
+### Changed
+- Documentation updates (#137 #139 #143 #146)
+
+### Fixed
+- Empty relationships are no longer added to serialized doc (#116)
+- Ruby v3 compatibility (#160)
+
 ## [2.1.0] - 2020-08-30
 
 ### Added
