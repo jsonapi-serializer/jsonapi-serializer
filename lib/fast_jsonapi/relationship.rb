@@ -12,7 +12,12 @@ module FastJsonapi
       object_block:,
       serializer:,
       relationship_type:,
-      polymorphic:, conditional_proc:, transform_method:, links:, meta:, cached: false,
+      polymorphic:,
+      conditional_proc:,
+      transform_method:,
+      links:,
+      meta:,
+      cached: false,
       lazy_load_data: false
     )
       @owner = owner

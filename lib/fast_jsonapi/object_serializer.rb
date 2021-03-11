@@ -228,10 +228,10 @@ module FastJsonapi
 
         # TODO: Remove this undocumented option.
         #   Delegate the caching to the serializer exclusively.
-        if !relationship.cached
-          uncachable_relationships_to_serialize[relationship.name] = relationship
-        else
+        if relationship.cached
           cachable_relationships_to_serialize[relationship.name] = relationship
+        else
+          uncachable_relationships_to_serialize[relationship.name] = relationship
         end
         relationships_to_serialize[relationship.name] = relationship
       end
@@ -302,7 +302,7 @@ module FastJsonapi
 
       def serializer_for(name)
         namespace = self.name.gsub(/()?\w+Serializer$/, '')
-        serializer_name = name.to_s.demodulize.classify + 'Serializer'
+        serializer_name = "#{name.to_s.demodulize.classify}Serializer"
         serializer_class_name = namespace + serializer_name
         begin
           serializer_class_name.constantize
@@ -340,7 +340,7 @@ module FastJsonapi
       def validate_includes!(includes)
         return if includes.blank?
 
-        parse_includes_list(includes).keys.each do |include_item|
+        parse_includes_list(includes).each_key do |include_item|
           relationship_to_include = relationships_to_serialize[include_item]
           raise(JSONAPI::Serializer::UnsupportedIncludeError.new(include_item, name)) unless relationship_to_include
 
