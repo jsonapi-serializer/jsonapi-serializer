@@ -107,7 +107,7 @@ RSpec.describe JSONAPI::Serializer do
           set_id :uid
           attributes :first_name, :last_name, :email
 
-          attributes_filter :some_method do |superset, record, params|
+          attributes_filter :some_method do |_superset, _record, _params|
             []
           end
 
