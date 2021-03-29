@@ -135,9 +135,7 @@ module FastJsonapi
       def reflected_record_type
         return @reflected_record_type if defined?(@reflected_record_type)
 
-        @reflected_record_type ||= begin
-          name.split('::').last.chomp('Serializer').underscore.to_sym if name&.end_with?('Serializer')
-        end
+        @reflected_record_type ||= name.split('::').last.chomp('Serializer').underscore.to_sym if name&.end_with?('Serializer')
       end
 
       def set_key_transform(transform_name)
