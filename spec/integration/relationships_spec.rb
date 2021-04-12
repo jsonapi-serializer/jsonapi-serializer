@@ -142,5 +142,63 @@ RSpec.describe JSONAPI::Serializer do
         end
       end
     end
+
+    context 'with a filter using a filter method' do
+      let(:params) { { params: { limit_relationships: true } } }
+
+      let(:serialized) do
+        MethodFilteredMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized.dig('data', 'relationships').keys).to match_array(%w[actors creator])
+      end
+    end
+
+    context 'with a filter using a filter block' do
+      let(:params) { { params: { limit_relationships: true } } }
+
+      let(:serialized) do
+        CallableFilteredMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized.dig('data', 'relationships').keys).to match_array(%w[actors creator])
+      end
+    end
+
+    context 'with a relationships filter using both a method name and a block' do
+      let(:klass) do
+        Class.new do
+          include JSONAPI::Serializer
+
+          set_id :uid
+          attributes :first_name, :last_name, :email
+
+          relationships_filter :some_method do |_superset, _record, _params|
+            []
+          end
+
+          def some_method
+            []
+          end
+        end
+      end
+
+      it { expect { klass }.to raise_error(ArgumentError, 'filter_method_name and block are mutually exclusive') }
+    end
+
+    context 'with a callable as relationship links' do
+      let(:serialized) do
+        CallableLinksMovieSerializer.new(movie, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized['data']['relationships']['first_two_actors'])
+          .to have_link('some').with_value(movie.id)
+        expect(serialized['data']['relationships']['first_two_actors'])
+          .to have_link('fancy').with_value('here')
+      end
+    end
   end
 end

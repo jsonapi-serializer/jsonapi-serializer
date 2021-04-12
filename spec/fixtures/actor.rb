@@ -54,6 +54,60 @@ class CamelCaseActorSerializer
   end
 end
 
+class MethodFilteredActorSerializer < UserSerializer
+  set_type :actor
+
+  attributes_filter :filtered_attributes_by_policy
+
+  has_many(
+    :played_movies,
+    serializer: :movie,
+    links: :movie_urls,
+    if: ->(_object, params) { params[:conditionals_off].nil? }
+  ) do |object|
+    object.movies
+  end
+
+  def self.filtered_attributes_by_policy(superset, _record, params)
+    permit = params[:filter_attributes]
+
+    case permit
+    when :all
+      superset
+    when nil, :none, []
+      []
+    else
+      superset.slice(*permit)
+    end
+  end
+end
+
+class CallableFilteredActorSerializer < UserSerializer
+  set_type :actor
+
+  attributes_filter do |superset, _record, params|
+    permit = params[:filter_attributes]
+
+    case permit
+    when :all
+      superset
+    when nil, :none, []
+      []
+    else
+      superset.slice(*permit)
+    end
+  end
+
+  has_many(
+    :played_movies,
+    serializer: :movie,
+    links: :movie_urls,
+    if: ->(_object, params) { params[:conditionals_off].nil? }
+  ) do |object|
+    object.movies
+  end
+end
+
 class BadMovieSerializerActorSerializer < ActorSerializer
   has_many :played_movies, serializer: :bad, object_method_name: :movies
 end

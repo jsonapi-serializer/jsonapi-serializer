@@ -125,3 +125,40 @@ module Cached
     end
   end
 end
+
+class MethodFilteredMovieSerializer < ::MovieSerializer
+  relationships_filter :filtered_by_something
+
+  has_many(
+    :first_two_actors,
+    id_method_name: :uid
+  ) do |record|
+    record.actors.take(2)
+  end
+
+  def self.filtered_by_something(superset, _record, params)
+    return superset unless params[:limit_relationships]
+
+    superset.slice(:actors, :creator)
+  end
+end
+
+class CallableFilteredMovieSerializer < ::MovieSerializer
+  relationships_filter do |superset, _record, params|
+    return superset unless params[:limit_relationships]
+
+    superset.slice(:actors, :creator)
+  end
+end
+
+class CallableLinksMovieSerializer < ::MovieSerializer
+  has_many(
+    :first_two_actors,
+    id_method_name: :uid,
+    links: lambda do |record|
+      { some: record.id, fancy: 'here' }
+    end
+  ) do |record|
+    record.actors.take(2)
+  end
+end

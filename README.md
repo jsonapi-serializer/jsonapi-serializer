@@ -305,6 +305,17 @@ This will create a `self` reference for the relationship, and a `related` link f
   }
 ```
 
+Relationship links can also be configured to be defined as a callable.
+
+```ruby
+  has_many :actors, links: -> (object, params) {
+    {
+      self: "https://movies.com/#{object.id}/relationships/actors",
+      next: "https://movies.com/#{object.id}/relationships/actors?page%5Bnumber%5D=2&page%5Bsize%5D=10"
+    }
+  }
+```
+
 ### Meta Per Resource
 
 For every resource in the collection, you can include a meta object containing non-standard meta-information about a resource that can not be represented as an attribute or relationship.
@@ -508,6 +519,29 @@ serializer = MovieSerializer.new(movie, { params: { admin: current_user.admin? }
 serializer.serializable_hash
 ```
 
+Sometimes it might be more performant to reduce the number of attributes getting serialized in a single call rather than specifying and executing a conditional Proc for every attribute. For this situation, `attributes_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all attributes defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the attributes to serialize. It will be further reduced by an eventually provided fieldset.
+
+```ruby
+class MovieSerializer
+  include JSONAPI::Serializer
+
+  attributes :name, :year, :release_year, :director
+
+  attributes_filter do |all_attributes, record, params|
+    permit = params[:permitted_by_policy]
+
+    case permit
+    when :all, nil
+      all_attributes
+    when :none, []
+      []
+    else
+      all_attributes.slice(*permit)
+    end
+  end
+end
+```
+
 ### Conditional Relationships
 
 Conditional relationships can be defined by passing a Proc to the `if` key. Return `true` if the relationship should be serialized, and `false` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
@@ -527,6 +561,30 @@ end
 current_user = User.find(cookies[:current_user_id])
 serializer = MovieSerializer.new(movie, { params: { admin: current_user.admin? }})
 serializer.serializable_hash
+```
+
+Just like with attributes, it might sometimes be more performant to reduce the number of relationships getting serialized in a single call rather than specifying and executing a single conditional Proc for every relationship. For this situation, `relationships_filter` can be used. It accepts both a method name representing a class method on the serializer class or a callable like a Proc. The class method or block provided receives three arguments. The first being the mapping of all relationships defined, the second is the object getting serialized and the last is the parameters passed to the serializer as the `params` option. The return value is then considered as starting point for the relationships to serialize. It will be further reduced by an eventually provided fieldset.
+
+```ruby
+class MovieSerializer
+  include JSONAPI::Serializer
+
+  has_many :actors
+  belongs_to :owner
+
+  relationships_filter do |all_relationships, record, params|
+    permit = params[:permitted_by_policy]
+
+    case permit
+    when :all, nil
+      all_relationships
+    when :none, []
+      []
+    else
+      all_relationships.slice(*permit)
+    end
+  end
+end
 ```
 
 ### Specifying a Relationship Serializer

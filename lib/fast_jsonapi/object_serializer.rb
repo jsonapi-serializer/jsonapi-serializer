@@ -118,7 +118,9 @@ module FastJsonapi
       def inherited(subclass)
         super(subclass)
         subclass.attributes_to_serialize = attributes_to_serialize.dup if attributes_to_serialize.present?
+        subclass.attributes_filter_method = attributes_filter_method.dup if attributes_filter_method.present?
         subclass.relationships_to_serialize = relationships_to_serialize.dup if relationships_to_serialize.present?
+        subclass.relationships_filter_method = relationships_filter_method.dup if relationships_filter_method.present?
         subclass.cachable_relationships_to_serialize = cachable_relationships_to_serialize.dup if cachable_relationships_to_serialize.present?
         subclass.uncachable_relationships_to_serialize = uncachable_relationships_to_serialize.dup if uncachable_relationships_to_serialize.present?
         subclass.transform_method = transform_method
@@ -133,9 +135,7 @@ module FastJsonapi
       def reflected_record_type
         return @reflected_record_type if defined?(@reflected_record_type)
 
-        @reflected_record_type ||= begin
-          name.split('::').last.chomp('Serializer').underscore.to_sym if name&.end_with?('Serializer')
-        end
+        @reflected_record_type ||= name.split('::').last.chomp('Serializer').underscore.to_sym if name&.end_with?('Serializer')
       end
 
       def set_key_transform(transform_name)
@@ -290,6 +290,42 @@ module FastJsonapi
           links: options[:links],
           lazy_load_data: options[:lazy_load_data]
         )
+      end
+
+      ##
+      # Add an extra layer for attribute filtering to the serializer operating on the full list of defined attributes,
+      # but before any fieldset is applied. This is a more performant option than providing conditionals to every attribute.
+      #
+      # @param filter_method_name [Symbol, nil]
+      #     The name of a class method used to filter the set of attributes. This method will receive the superset of attributes,
+      #     the current record getting serialized and the serializer parameters passed along.
+      #
+      # @param block [#call]
+      #     If a block is provided instead of a method name, this is going to be called when building the attributes hash.
+      #     The arguments to the block are the same as for the method: the superset of attributes, the record getting serialized
+      #     and the serializer parameters.
+      def attributes_filter(filter_method_name = nil, &block)
+        raise ArgumentError, 'filter_method_name and block are mutually exclusive' if filter_method_name && block
+
+        self.attributes_filter_method = filter_method_name || block
+      end
+
+      ##
+      # Add an extra layer for relationship filtering to the serializer operating on the full list of defined relationships,
+      # but before any fieldset is applied. This is a more performant option than providing conditionals to every relationship.
+      #
+      # @param filter_method_name [Symbol, nil]
+      #     The name of a class method used to filter the set of relationships. This method will receive the superset of relationships,
+      #     the current record getting serialized and the serializer parameters passed along.
+      #
+      # @param block [#call]
+      #     If a block is provided instead of a method name, this is going to be called when building the relationships hash.
+      #     The arguments to the block are the same as for the method: the superset of attributes, the record getting serialized
+      #     and the serializer parameters.
+      def relationships_filter(filter_method_name = nil, &block)
+        raise ArgumentError, 'filter_method_name and block are mutually exclusive' if filter_method_name && block
+
+        self.relationships_filter_method = filter_method_name || block
       end
 
       def compute_id_method_name(custom_id_method_name, id_method_name_from_relationship, polymorphic, serializer, block)

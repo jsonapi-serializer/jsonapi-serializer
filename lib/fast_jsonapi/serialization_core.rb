@@ -12,7 +12,9 @@ module FastJsonapi
     included do
       class << self
         attr_accessor :attributes_to_serialize,
+                      :attributes_filter_method,
                       :relationships_to_serialize,
+                      :relationships_filter_method,
                       :cachable_relationships_to_serialize,
                       :uncachable_relationships_to_serialize,
                       :transform_method,
@@ -42,6 +44,7 @@ module FastJsonapi
 
       def attributes_hash(record, fieldset = nil, params = {})
         attributes = attributes_to_serialize
+        attributes = filter_list(attributes_filter_method, attributes, record, params)
         attributes = attributes.slice(*fieldset) if fieldset.present?
         attributes = {} if fieldset == []
 
@@ -50,8 +53,37 @@ module FastJsonapi
         end
       end
 
+      ##
+      # Eventually filter a list of attributes or relationships using a configured filter method/block
+      #
+      # @param filter [Symbol, #call, nil]
+      #     If a Symbol the name of the filter method to call on the serializer.
+      #     If something callable, the result of that callable.
+      #
+      # @param superset [Hash]
+      #     The attributes or relationships to filter
+      #
+      # @param record [Object]
+      #     The current record to get serialized
+      #
+      # @param params [Hash]
+      #     The params provided to the serializer
+      #
+      # @return [Hash]
+      #     The eventually filtered set of attributes or relationships
+      def filter_list(filter, superset, record, params = {})
+        return superset if filter.nil?
+
+        if filter.respond_to?(:call)
+          filter.call(superset, record, params)
+        else
+          send(filter, superset, record, params)
+        end
+      end
+
       def relationships_hash(record, relationships = nil, fieldset = nil, includes_list = nil, params = {})
         relationships = relationships_to_serialize if relationships.nil?
+        relationships = filter_list(relationships_filter_method, relationships, record, params)
         relationships = relationships.slice(*fieldset) if fieldset.present?
         relationships = {} if fieldset == []
 

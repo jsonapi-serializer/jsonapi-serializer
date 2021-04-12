@@ -59,5 +59,65 @@ RSpec.describe JSONAPI::Serializer do
         )
       end
     end
+
+    context 'with an attribute filter using a method permitting a few attributs only' do
+      let(:params) { { params: { filter_attributes: %i[last_name email] } } }
+
+      let(:serialized) do
+        MethodFilteredActorSerializer.new(actor, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized['data'])
+          .to have_jsonapi_attributes('last_name', 'email').exactly
+      end
+    end
+
+    context 'with an attribute filter using a method permitting all' do
+      let(:params) { { params: { filter_attributes: :all } } }
+
+      let(:serialized) do
+        MethodFilteredActorSerializer.new(actor, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized['data'])
+          .to have_jsonapi_attributes('first_name', 'last_name', 'email').exactly
+      end
+    end
+
+    context 'with an attribute filter using a block' do
+      let(:params) { { params: { filter_attributes: %i[last_name email] } } }
+
+      let(:serialized) do
+        CallableFilteredActorSerializer.new(actor, params).serializable_hash.as_json
+      end
+
+      it do
+        expect(serialized['data'])
+          .to have_jsonapi_attributes('last_name', 'email').exactly
+      end
+    end
+
+    context 'with an attribute filter using both a method name and a block' do
+      let(:klass) do
+        Class.new do
+          include JSONAPI::Serializer
+
+          set_id :uid
+          attributes :first_name, :last_name, :email
+
+          attributes_filter :some_method do |_superset, _record, _params|
+            []
+          end
+
+          def some_method
+            []
+          end
+        end
+      end
+
+      it { expect { klass }.to raise_error(ArgumentError, 'filter_method_name and block are mutually exclusive') }
+    end
   end
 end
