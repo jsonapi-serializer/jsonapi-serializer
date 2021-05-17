@@ -172,7 +172,7 @@ module FastJsonapi
 
           next unless relationship_item&.include_relationship?(record, params)
 
-          included_objects = Array(relationship_item.fetch_associated_object(record, params))
+          included_objects = Array.wrap(relationship_item.fetch_associated_object(record, params))
           next if included_objects.empty?
 
           static_serializer = relationship_item.static_serializer

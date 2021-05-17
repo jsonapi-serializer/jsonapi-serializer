@@ -9,6 +9,7 @@ RSpec.describe JSONAPI::Serializer do
     poly_act.movies = [Movie.fake]
     mov.polymorphics = [User.fake, poly_act]
     mov.actor_or_user = Actor.fake
+    mov.debut = Debut.new(SecureRandom.uuid, 'Los Angeles')
     mov
   end
   let(:params) { {} }
@@ -139,6 +140,16 @@ RSpec.describe JSONAPI::Serializer do
           expect(serialized['included']).to include(
             have_type('actor').and(have_id(movie.actor_or_user.uid))
           )
+        end
+      end
+
+      context 'with enumerable data types' do
+        let(:params) do
+          { include: [:debut] }
+        end
+
+        it do
+          expect(serialized['included']).to include(have_type('debut').and(have_id(movie.debut.id)))
         end
       end
     end

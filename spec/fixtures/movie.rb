@@ -8,7 +8,8 @@ class Movie
     :actor_ids,
     :polymorphics,
     :owner,
-    :owner_id
+    :owner_id,
+    :debut
   )
 
   def self.fake(id = nil)
@@ -104,6 +105,8 @@ class MovieSerializer
   ) do |obj|
     obj.polymorphics
   end
+
+  has_one(:debut) { |obj| obj.debut }
 end
 
 module Cached

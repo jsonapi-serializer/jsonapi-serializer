@@ -107,7 +107,7 @@ module FastJsonapi
 
       return unless associated_object = fetch_associated_object(record, params)
 
-      if associated_object.respond_to? :map
+      if associated_object.respond_to? :to_ary
         return associated_object.map do |object|
           id_hash_from_record object, params
         end
