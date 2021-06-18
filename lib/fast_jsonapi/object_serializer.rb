@@ -62,7 +62,17 @@ module FastJsonapi
       fieldset = @fieldsets[self.class.record_type.to_sym]
       @resource.each do |record|
         data << self.class.record_hash(record, fieldset, @includes, @params)
-        included.concat self.class.get_included_records(record, @includes, @known_included_objects, @fieldsets, @params) if @includes.present?
+        if @includes.present?
+          included.concat(
+            self.class.get_included_records(
+              record,
+              @includes,
+              @known_included_objects,
+              @fieldsets,
+              @params
+            )
+          )
+        end
       end
 
       serializable_hash[:data] = data
