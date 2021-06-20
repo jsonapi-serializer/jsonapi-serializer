@@ -21,9 +21,7 @@ RSpec.describe JSONAPI::Serializer do
 
       expect(cache_store.delete(actor, namespace: 'test')).to be(true)
       expect(cache_store.delete(actor.movies[0], namespace: 'test')).to be(true)
-      expect(
-        cache_store.delete(actor.movies[0].owner, namespace: 'test')
-      ).to be(false)
+      expect(cache_store.delete(actor.movies[0].owner, namespace: 'test')).to be(false)
     end
 
     context 'without relationships' do
