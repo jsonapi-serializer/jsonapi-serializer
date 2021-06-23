@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'jsonapi/serializer/errors'
+require_relative 'jsonapi/serializer/errors'
 
 module FastJsonapi
   require 'fast_jsonapi/object_serializer'

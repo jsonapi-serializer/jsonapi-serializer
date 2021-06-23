@@ -2,6 +2,7 @@
 
 require 'active_support/concern'
 require 'digest/sha1'
+require 'batch-loader'
 
 module FastJsonapi
   MandatoryField = Class.new(StandardError)
@@ -66,22 +67,38 @@ module FastJsonapi
       def record_hash(record, fieldset, includes_list, params = {})
         if cache_store_instance
           cache_opts = record_cache_options(cache_store_options, fieldset, includes_list, params)
-          record_hash = cache_store_instance.fetch(record, **cache_opts) do
-            temp_hash = id_hash(id_from_record(record, params), record_type, true)
-            temp_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
-            temp_hash[:relationships] = relationships_hash(record, nil, fieldset, includes_list, params) if relationships_to_serialize.present?
-            temp_hash[:links] = links_hash(record, params) if data_links.present?
-            temp_hash
+          klass = self.name
+          param = [record, cache_opts, klass]
+          ::BatchLoader.for(param).batch do |batch_params, loader|
+            cache_results = cache_store_instance.fetch(batch_params)
+              .map { |str| JSON.parse(str, symbolize_names: true) }.group_by { |h| [h[:id], h[:type]] }.transform_values(&:first)
+            batch_params.each do |batch_param|
+              _record = batch_param.first
+              _cache_opts = batch_param.second
+              _klass = Object.const_get(batch_param.last)
+              record_h = cache_results[[_record.id.to_s, _record.class.model_name.name.underscore]]
+              if record_h.nil?
+                temp_json = _klass.cache_store_instance.cache(_record, _cache_opts) do
+                  temp_hash = _klass.id_hash(_klass.id_from_record(_record, params), _klass.record_type, true)
+                  temp_hash[:attributes] = _klass.attributes_hash(_record, fieldset, params) if _klass.attributes_to_serialize.present?
+                  temp_hash[:relationships] = _klass.relationships_hash(_record, nil, fieldset, includes_list, params) if _klass.relationships_to_serialize.present?
+                  temp_hash[:links] = _klass.links_hash(_record, params) if _klass.data_links.present?
+                  temp_hash[:meta] = _klass.meta_hash(_record, params) if _klass.meta_to_serialize.present?
+                  Oj.dump(temp_hash, mode: :compat)
+                end
+                record_h = Oj.load(temp_json, symbolize_keys: true)
+              end
+              loader.call(batch_param, record_h)
+            end
           end
         else
-          record_hash = id_hash(id_from_record(record, params), record_type, true)
-          record_hash[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
-          record_hash[:relationships] = relationships_hash(record, nil, fieldset, includes_list, params) if relationships_to_serialize.present?
-          record_hash[:links] = links_hash(record, params) if data_links.present?
+          record_h = id_hash(id_from_record(record, params), record_type, true)
+          record_h[:attributes] = attributes_hash(record, fieldset, params) if attributes_to_serialize.present?
+          record_h[:relationships] = relationships_hash(record, nil, fieldset, includes_list, params) if relationships_to_serialize.present?
+          record_h[:links] = links_hash(record, params) if data_links.present?
+          record_h[:meta] = meta_hash(record, params) if meta_to_serialize.present?
+          record_h
         end
-
-        record_hash[:meta] = meta_hash(record, params) if meta_to_serialize.present?
-        record_hash
       end
 
       # Cache options helper. Use it to adapt cache keys/rules.
