@@ -94,29 +94,24 @@ module FastJsonapi
       #
       # @param options [Hash] default cache options
       # @param fieldset [Array, nil] passed fieldset values
-      # @param includes_list [Array, nil] passed included values
-      # @param params [Hash] the serializer params
+      # @param _includes_list [Array, nil] passed included values
+      # @param _params [Hash] the serializer params
       #
       # @return [Hash] processed options hash
-      # rubocop:disable Lint/UnusedMethodArgument
-      def record_cache_options(options, fieldset, includes_list, params)
-        return options unless fieldset
-
+      def record_cache_options(options, fieldset, _includes_list, _params)
         options = options ? options.dup : {}
-        options[:namespace] ||= 'jsonapi-serializer'
-
-        fieldset_key = fieldset.join('_')
-
-        # Use a fixed-length fieldset key if the current length is more than
-        # the length of a SHA1 digest
-        if fieldset_key.length > 40
-          fieldset_key = Digest::SHA1.hexdigest(fieldset_key)
+        namespace = [options[:namespace] ||= 'jsonapi-serializer']
+        if fieldset
+          fieldset_key = fieldset.join('_')
+          # Use a fixed-length fieldset key if the current length is more than
+          # the length of a SHA1 digest
+          fieldset_key = Digest::SHA1.hexdigest(fieldset_key) if fieldset_key.length > 40
+          namespace.push("fieldset:#{fieldset_key}")
         end
-
-        options[:namespace] = "#{options[:namespace]}-fieldset:#{fieldset_key}"
+        namespace.push("serializer:#{name.urlize}")
+        options[:namespace] = [namespace.compact.join('-')]
         options
       end
-      # rubocop:enable Lint/UnusedMethodArgument
 
       def id_from_record(record, params)
         return FastJsonapi.call_proc(record_id, record, params) if record_id.is_a?(Proc)
