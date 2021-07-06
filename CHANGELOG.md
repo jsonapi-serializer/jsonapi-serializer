@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 - ...
 
+## [2.3.0] - 2021-06-05
+- optimize the cache performance by batch load the cache
+- support proc on cache_options namespace
+- cache_options namespace merged into cache key
+- temp disable fieldset support, expect to bring back that in next version
+
 ## [2.2.0] - 2021-03-11
 
 ### Added
