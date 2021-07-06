@@ -11,6 +11,10 @@ class User
     faked.email = FFaker::Internet.email
     faked
   end
+
+  def cache_key
+    "#{uid}_cache_key"
+  end
 end
 
 class NoSerializerUser < User

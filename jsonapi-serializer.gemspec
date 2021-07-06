@@ -20,6 +20,7 @@ Gem::Specification.new do |gem|
   gem.extra_rdoc_files = ['LICENSE.txt', 'README.md']
 
   gem.add_runtime_dependency('activesupport', '>= 4.2')
+  gem.add_runtime_dependency('batch-loader', '~> 2.0.0')
 
   gem.add_development_dependency('activerecord')
   gem.add_development_dependency('bundler')

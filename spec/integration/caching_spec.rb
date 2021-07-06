@@ -9,21 +9,40 @@ RSpec.describe JSONAPI::Serializer do
     faked.movies = [movie]
     faked
   end
-  let(:cache_store) { Cached::ActorSerializer.cache_store_instance }
 
   describe 'with caching' do
+    let(:cache_store) { Cached::ActorSerializer.cache_store_instance }
     it do
-      expect(cache_store.delete(actor, namespace: 'test')).to be(false)
+      cache_store.clear
+      expect(cache_store.delete("j16r-test-#{actor.cache_key}")).to be(false)
+      expect(cache_store).to receive(:read_multi).once.and_call_original
+      expect(cache_store).to receive(:write_multi).once.and_call_original
 
-      Cached::ActorSerializer.new(
+      JSON.dump(Cached::ActorSerializer.new(
         [actor, actor], include: ['played_movies', 'played_movies.owner']
-      ).serializable_hash
+      ).serializable_hash)
 
-      expect(cache_store.delete(actor, namespace: 'test')).to be(true)
-      expect(cache_store.delete(actor.movies[0], namespace: 'test')).to be(true)
-      expect(
-        cache_store.delete(actor.movies[0].owner, namespace: 'test')
-      ).to be(false)
+      expect(cache_store.delete("j16r-test-#{actor.cache_key}")).to be(true)
+      expect(cache_store.delete("j16r-test-#{actor.movies[0].cache_key}")).to be(true)
+      expect(cache_store.delete("j16r-test-#{actor.movies[0].owner.cache_key}")).to be(false)
+    end
+
+    context 'with params determined namespace' do
+      let(:cache_store) { Cached::WithParamNamespaceActorSerializer.cache_store_instance }
+      it do
+        cache_store.clear
+        expect(cache_store.delete("j16r-male-#{actor.cache_key}")).to be(false)
+
+        JSON.dump(Cached::WithParamNamespaceActorSerializer.new(
+          [actor, actor],
+          include: ['played_movies', 'played_movies.owner'],
+          params: { actor_gender: :male }
+        ).serializable_hash)
+
+        expect(cache_store.delete("j16r-male-#{actor.cache_key}")).to be(true)
+        expect(cache_store.delete("j16r-test-#{actor.movies[0].cache_key}")).to be(true)
+        expect(cache_store.delete("j16r-test-#{actor.movies[0].owner.cache_key}")).to be(false)
+      end
     end
 
     context 'without relationships' do
@@ -37,9 +56,10 @@ RSpec.describe JSONAPI::Serializer do
     end
   end
 
+  # disable those tests since fieldset support is dropped
   describe 'with caching and different fieldsets' do
     context 'when fieldset is provided' do
-      it 'includes the fieldset in the namespace' do
+      xit 'includes the fieldset in the namespace' do
         expect(cache_store.delete(actor, namespace: 'test')).to be(false)
 
         Cached::ActorSerializer.new(
@@ -64,7 +84,7 @@ RSpec.describe JSONAPI::Serializer do
       let(:actor_keys) { %i[first_name last_name more_fields yet_more_fields so_very_many_fields] }
       let(:digest_key) { Digest::SHA1.hexdigest(actor_keys.join('_')) }
 
-      it 'includes the hashed fieldset in the namespace' do
+      xit 'includes the hashed fieldset in the namespace' do
         Cached::ActorSerializer.new(
           [actor], fields: { actor: actor_keys }
         ).serializable_hash

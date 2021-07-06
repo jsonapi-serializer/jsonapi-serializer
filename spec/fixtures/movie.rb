@@ -22,6 +22,10 @@ class Movie
     faked
   end
 
+  def cache_key
+    "#{id}_cache_key"
+  end
+
   def url(obj = nil)
     @url ||= FFaker::Internet.http_url
     return @url if obj.nil?

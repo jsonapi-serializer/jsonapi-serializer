@@ -155,6 +155,8 @@ module FastJsonapi
                                  end
     end
 
+    # this relationship meta attribute is intend to be cached
+    # since the use case is unclear about time sensitive
     def add_meta_hash(record, params, output_hash)
       output_hash[key][:meta] = if meta.is_a?(Proc)
                                   FastJsonapi.call_proc(meta, record, params)
