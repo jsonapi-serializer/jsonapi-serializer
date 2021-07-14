@@ -66,10 +66,15 @@ module FastJsonapi
         FastJsonapi.call_proc(meta_to_serialize, record, params)
       end
 
-      # move the namespace to be part of cache_key
+      # Move the namespace to be part of cache_key
       # since ActiveSupport doesn't support multi read with different namespaces
+      #
+      # Use #cache_key_with_version instead of #cache_key because we don't
+      # pass AR objects as keys to cache store and thus we can't leverage the
+      # built-in cache versioning from rails 6. This is a good opportunity for
+      # future improvement.
       def generate_cache_key(record, namespace)
-        "#{namespace}-#{record.cache_key}"
+        "#{namespace}-#{record.cache_key_with_version}"
       end
 
       def record_hash(record, fieldset, includes_list, params = {})
