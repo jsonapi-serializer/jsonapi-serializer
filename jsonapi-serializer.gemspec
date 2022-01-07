@@ -33,5 +33,4 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('rubocop-rspec')
   gem.add_development_dependency('simplecov')
   gem.add_development_dependency('sqlite3')
-  gem.metadata['rubygems_mfa_required'] = 'true'
 end
