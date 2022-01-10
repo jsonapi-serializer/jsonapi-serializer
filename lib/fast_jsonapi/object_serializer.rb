@@ -1,6 +1,11 @@
 # frozen_string_literal: true
 
-require 'active_support/isolated_execution_state'
+require 'active_support/gem_version'
+
+if defined?(ActiveSupport) && ActiveSupport::VERSION::MAJOR >= 7
+  require 'active_support/isolated_execution_state'
+end
+
 require 'active_support/time'
 require 'active_support/concern'
 require 'active_support/inflector'
