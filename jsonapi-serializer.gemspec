@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
 
   gem.summary = 'Fast JSON:API serialization library'
   gem.description = 'Fast, simple and easy to use '\
-    'JSON:API serialization library (also known as fast_jsonapi).'
+                    'JSON:API serialization library (also known as fast_jsonapi).'
   gem.homepage = 'https://github.com/jsonapi-serializer/jsonapi-serializer'
   gem.licenses = ['Apache-2.0']
   gem.files = Dir['lib/**/*']
@@ -33,4 +33,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency('rubocop-rspec')
   gem.add_development_dependency('simplecov')
   gem.add_development_dependency('sqlite3')
+  gem.metadata['rubygems_mfa_required'] = 'true'
 end

@@ -1,3 +1,4 @@
+require 'active_support'
 require 'active_support/notifications'
 
 module JSONAPI
