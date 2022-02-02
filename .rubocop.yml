@@ -42,6 +42,9 @@ Performance/TimesMap:
   Exclude:
     - 'spec/**/**.rb'
 
+Gemspec/RequiredRubyVersion:
+  Enabled: false
+
 # TODO: Fix these...
 Style/Documentation:
   Enabled: false

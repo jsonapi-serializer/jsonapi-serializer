@@ -1,3 +1,4 @@
+require 'active_support'
 require 'active_support/cache'
 require 'jsonapi/serializer/instrumentation'
 
