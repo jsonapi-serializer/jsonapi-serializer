@@ -1,6 +1,10 @@
 # JSON:API Serialization Library
 
-## :warning: :construction: [At the moment, contributions are welcome only for v3](https://github.com/jsonapi-serializer/jsonapi-serializer/pull/141)! :construction: :warning:
+## :warning: :construction: v2 (the `master` branch) is in maintenance mode! :construction: :warning:
+
+We'll gladly accept bugfixes and security-related fixes for v2 (the `master` branch), but at this stage, contributions for new features/improvements are welcome only for v3. Please feel free to leave comments in the [v3 Pull Request](https://github.com/jsonapi-serializer/jsonapi-serializer/pull/141). 
+
+---
 
 A fast [JSON:API](https://jsonapi.org/) serializer for Ruby Objects.
 
