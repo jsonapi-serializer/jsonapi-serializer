@@ -42,6 +42,7 @@ article in the `docs` folder for any questions related to methodology.
   * [Conditional Attributes](#conditional-attributes)
   * [Conditional Relationships](#conditional-relationships)
   * [Specifying a Relationship Serializer](#specifying-a-relationship-serializer)
+  * [Ordering `has_many` Relationship](#ordering-has_many-relationship)
   * [Sparse Fieldsets](#sparse-fieldsets)
   * [Using helper methods](#using-helper-methods)
 * [Performance Instrumentation](#performance-instrumentation)
@@ -575,6 +576,20 @@ class MovieSerializer
     else
       ActorSerializer
     end
+  end
+end
+```
+
+### Ordering `has_many` Relationship
+
+You can order the `has_many` relationship by providing a block:
+
+```ruby
+class MovieSerializer
+  include JSONAPI::Serializer
+
+  has_many :actors do |movie|
+    movie.actors.order(position: :asc)
   end
 end
 ```
