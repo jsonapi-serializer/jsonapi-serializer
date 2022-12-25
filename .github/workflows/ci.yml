@@ -21,7 +21,19 @@ jobs:
     - name: Sets up the environment
       run: |
         sudo apt-get install libsqlite3-dev
+
+    - name: Install legacy bundler for Ruby 2.4
+      if: ${{ matrix.ruby == 2.4 }}
+      run: |
+        gem install -q bundler -v 2.3.26 
+
+    - name: Install bundler 2.4+ for modern Rubies
+      if: ${{ matrix.ruby != 2.4 }}
+      run: |
         gem install -q bundler
+
+    - name: Run bundle install
+      run: |
         bundle install
 
     - name: Runs code QA and tests
