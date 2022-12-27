@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-::ActiveRecord::Associations::Builder::HasOne.class_eval do
+ActiveRecord::Associations::Builder::HasOne.class_eval do
   # Based on
   # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/collection_association.rb#L50
   # https://github.com/rails/rails/blob/master/activerecord/lib/active_record/associations/builder/singular_association.rb#L11
