@@ -1,10 +1,11 @@
-require 'simplecov'
-
-SimpleCov.start do
-  add_group 'Lib', 'lib'
-  add_group 'Tests', 'spec'
+unless RUBY_ENGINE == 'truffleruby'
+  require 'simplecov'
+  SimpleCov.start do
+    add_group 'Lib', 'lib'
+    add_group 'Tests', 'spec'
+  end
+  SimpleCov.minimum_coverage 90
 end
-SimpleCov.minimum_coverage 90
 
 require 'active_support'
 require 'active_support/core_ext/object/json'
