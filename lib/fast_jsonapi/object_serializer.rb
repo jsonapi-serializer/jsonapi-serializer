@@ -340,7 +340,9 @@ module FastJsonapi
         return if includes.blank?
 
         parse_includes_list(includes).each_key do |include_item|
-          relationship_to_include = relationships_to_serialize[include_item]
+          relationships = relationships_to_serialize || {}
+          relationship_to_include = relationships[include_item]
+
           raise(JSONAPI::Serializer::UnsupportedIncludeError.new(include_item, name)) unless relationship_to_include
 
           relationship_to_include.static_serializer # called for a side-effect to check for a known serializer class.
