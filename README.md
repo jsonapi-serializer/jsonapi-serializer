@@ -410,7 +410,7 @@ end
 `#fetch(record, **options, &block)` method:
 
 - `record` is the record that is currently serialized
-- `options` is everything that was passed to `cache_options` except `store`, so it can be everyhing the cache store supports
+- `options` is everything that was passed to `cache_options` except `store`, so it can be everything the cache store supports
 - `&block` should be executed to fetch new data if cache is empty
 
 So for the example above it will call the cache instance like this:
