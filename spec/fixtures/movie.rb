@@ -73,6 +73,13 @@ class MovieSerializer
       related: ->(obj) { obj.url(obj) }
     }
   )
+  has_many(
+    :lazy_actors,
+    id_method_name: :uid,
+    lazy_load_data: true
+  ) do |object|
+    object.actors
+  end
   has_one(
     :creator,
     object_method_name: :owner,
