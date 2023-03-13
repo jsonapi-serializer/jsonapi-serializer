@@ -164,7 +164,7 @@ module FastJsonapi
       def get_included_records(record, includes_list, known_included_objects, fieldsets, params = {})
         return unless includes_list.present?
         return [] unless relationships_to_serialize
-
+binding.pry
         includes_list = parse_includes_list(includes_list)
 
         includes_list.each_with_object([]) do |include_item, included_records|

@@ -47,19 +47,26 @@ module JSONAPI
       #
       # @param record [Object] the record to process
       # @param items [Array<String>] items to include
+      # @param query_pagination [number, size] items to include
+      # @param query_filter [Hash] items to include
       # @param known [Set] all the item identifiers already included
       # @param fieldsets [Array<String>] of attributes to serialize
       # @param params [Hash] the record processing parameters
       # @return [Array] of data
       # rubocop:disable Metrics/BlockLength
-      def record_includes(record, items, known, fieldsets, params)
+      def record_includes(record, items, known, fieldsets, params, query_pagination = {}, query_filter = {})
         return [] if items.nil? || @relationships_to_serialize.nil?
         return [] if items.empty? || @relationships_to_serialize.empty?
 
         items = parse_includes_list(items)
 
         items.each_with_object([]) do |(item, item_includes), included|
-          to_include = record_include_item(item, record, params)
+          pagination_params = query_pagination[item.to_sym] || {}
+          filter_params = query_filter[item.to_sym] || {}
+
+          # Remove nested attributes from the query params
+          cleared_query_params = pagination_params.merge(filter_params)
+          to_include = record_include_item(item, record, params, cleared_query_params)
           next if to_include.nil?
 
           rel_objects, rel_options = to_include
@@ -80,7 +87,7 @@ module JSONAPI
             if item_includes.any?
               included.concat(
                 serializer.record_includes(
-                  rel_obj, item_includes, known, fieldsets, params
+                  rel_obj, item_includes, known, fieldsets, params, pagination_params, filter_params
                 )
               )
             end
@@ -127,7 +134,7 @@ module JSONAPI
 
       private
 
-      def record_include_item(item, record, params)
+      def record_include_item(item, record, params, query_params = {})
         relationship = @relationships_to_serialize[item]
 
         raise IncludeError.new(item, self) if relationship.nil?
@@ -137,7 +144,7 @@ module JSONAPI
         return unless condition_passes?(rel_options[:if], record, params)
 
         objects = call_proc_or_method(
-          relationship[:object_block] || relationship[:name], record, params
+          relationship[:object_block] || relationship[:name], record, params, query_params
         )
 
         return if objects.nil?
@@ -344,10 +351,27 @@ module JSONAPI
         call_proc(maybe_proc, record, params)
       end
 
-      def call_proc_or_method(maybe_proc, record, params)
+      def call_proc_or_method(maybe_proc, record, params, query_params = {})
         return call_proc(maybe_proc, record, params) if maybe_proc.is_a?(Proc)
 
+        # get query, if possible
+        query_object = get_query_object(maybe_proc)
+        if query_object && query_object.respond_to?(:call) && params[:current_user]
+          return query_object.call(
+            query_params.merge(
+              scope: record.public_send(maybe_proc),
+              current_user: params[:current_user]
+            )
+          )
+        end
+
         record.public_send(maybe_proc)
+      end
+
+      def get_query_object(maybe_proc)
+        return if maybe_proc.is_a?(Proc)
+
+        @relationships_to_serialize&.dig(maybe_proc, :options, :query)
       end
 
       # Calls [Proc] with respect to the number of parameters it takes

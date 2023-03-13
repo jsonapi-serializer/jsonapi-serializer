@@ -33,7 +33,7 @@ module JSONAPI
       # @param object [Object] to find the serialization class for
       # @param mapping [Hash] custom map of model to serializer classes
       # @return [Class] of the serialization class
-      def for_object(object, mapping = nil)
+      def for_object(object, mapping = nil, options = {})
         if mapping.is_a?(Hash)
           return (
             mapping[object.class] || NotFoundError.new(object, mapping.values)
@@ -44,6 +44,7 @@ module JSONAPI
           return klass if klass.name == "#{object.class.name}Serializer"
         end
 
+        return options[:default_serializer] unless options[:default_serializer].nil?
         raise NotFoundError.new(object, serializers)
       end
 

@@ -10,6 +10,8 @@ module JSONAPI
         @params = @options.delete(:params) || {}
         @fieldsets = @options.delete(:fields) || {}
         @includes = @options.delete(:include) || []
+        @include_page = @options.delete(:include_page) || {}
+        @include_filter = @options.delete(:include_filter) || {}
         @include = @includes.map(&:to_s).map(&:strip).reject(&:empty?)
       end
 
@@ -33,13 +35,14 @@ module JSONAPI
 
         Array(@resource).each do |record|
           serializer_class = self.class unless is_collection
-          serializer_class ||= JSONAPI::Serializer.for_object(record)
+          # do not fail, but use current serializer if no serializer is found
+          serializer_class ||= JSONAPI::Serializer.for_object(record, nil, default_serializer: self.class)
 
           fieldset = @fieldsets[serializer_class.record_type]
           data << serializer_class.record_hash(record, fieldset, @params)
 
           included += serializer_class.record_includes(
-            record, @includes, included_oids, @fieldsets, @params
+            record, @includes, included_oids, @fieldsets, @params, @include_page, @include_filter
           )
         end
 
