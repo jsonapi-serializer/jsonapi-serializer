@@ -6,6 +6,7 @@ require 'jsonapi/serializer/version'
 Gem::Specification.new do |gem|
   gem.name = 'jsonapi-serializer'
   gem.version = JSONAPI::Serializer::VERSION
+  gem.metadata["allowed_push_host"] = 'https://rubygems.pkg.github.com/art19'
 
   gem.authors = ['JSON:API Serializer Community']
   gem.email = ''
