@@ -17,7 +17,7 @@ require 'jsonapi/rspec'
 require 'byebug'
 require 'securerandom'
 
-Dir[File.expand_path('spec/fixtures/*.rb')].each { |f| require f }
+Dir[File.expand_path('spec/fixtures/*.rb')].sort.each { |f| require f }
 
 RSpec.configure do |config|
   config.include JSONAPI::RSpec
