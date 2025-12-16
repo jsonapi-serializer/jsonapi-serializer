@@ -6,7 +6,7 @@ class Actor < User
   attr_accessor :movies, :movie_ids
 
   def self.fake(id = nil)
-    faked = super(id)
+    faked = super
     faked.movies = []
     faked.movie_ids = []
     faked

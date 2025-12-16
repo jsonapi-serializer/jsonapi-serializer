@@ -8,6 +8,7 @@ unless RUBY_ENGINE == 'truffleruby'
 end
 
 require 'active_support'
+require 'active_support/core_ext/object'
 require 'active_support/core_ext/object/json'
 require 'jsonapi/serializer'
 require 'ffaker'
@@ -16,7 +17,7 @@ require 'jsonapi/rspec'
 require 'byebug'
 require 'securerandom'
 
-Dir[File.expand_path('spec/fixtures/*.rb')].sort.each { |f| require f }
+Dir[File.expand_path('spec/fixtures/*.rb')].each { |f| require f }
 
 RSpec.configure do |config|
   config.include JSONAPI::RSpec

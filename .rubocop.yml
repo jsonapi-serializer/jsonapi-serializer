@@ -1,4 +1,4 @@
-require:
+plugins:
   - rubocop-performance
   - rubocop-rspec
 
@@ -23,7 +23,10 @@ Lint/DuplicateMethods:
   Exclude:
     - 'spec/fixtures/*.rb'
 
-RSpec/FilePath:
+RSpec/SpecFilePathFormat:
+  Enabled: false
+
+RSpec/SpecFilePathSuffix:
   Enabled: false
 
 RSpec/DescribedClass:
@@ -76,7 +79,7 @@ Layout/LineLength:
   Exclude:
     - 'lib/**/**.rb'
 
-Naming/PredicateName:
+Naming/PredicatePrefix:
   Exclude:
     - 'lib/**/**.rb'
 
