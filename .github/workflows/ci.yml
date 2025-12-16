@@ -22,7 +22,13 @@ jobs:
       run: |
         sudo apt-get install libsqlite3-dev
 
-    - name: Install bundler
+    - name: Install legacy bundler for Ruby 2.7
+      if: ${{ matrix.ruby == 2.7 }}
+      run: |
+        gem install -q bundler -v 2.4.22
+
+    - name: Install bundler 2.7+ for modern Rubies
+      if: ${{ matrix.ruby != 2.7 }}
       run: |
         gem install -q bundler
 
