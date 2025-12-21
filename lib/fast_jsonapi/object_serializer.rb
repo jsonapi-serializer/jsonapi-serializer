@@ -117,7 +117,7 @@ module FastJsonapi
       end
 
       def inherited(subclass)
-        super(subclass)
+        super
         subclass.attributes_to_serialize = attributes_to_serialize.dup if attributes_to_serialize.present?
         subclass.relationships_to_serialize = relationships_to_serialize.dup if relationships_to_serialize.present?
         subclass.cachable_relationships_to_serialize = cachable_relationships_to_serialize.dup if cachable_relationships_to_serialize.present?
@@ -271,7 +271,7 @@ module FastJsonapi
           name: name,
           id_method_name: compute_id_method_name(
             options[:id_method_name],
-            "#{base_serialization_key}#{id_postfix}".to_sym,
+            :"#{base_serialization_key}#{id_postfix}",
             polymorphic,
             options[:serializer],
             block

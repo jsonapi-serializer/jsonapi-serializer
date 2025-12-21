@@ -9,6 +9,7 @@ end
 
 require 'active_support'
 require 'active_support/core_ext/object/json'
+require 'active_support/core_ext/object/blank'
 require 'jsonapi/serializer'
 require 'ffaker'
 require 'rspec'
