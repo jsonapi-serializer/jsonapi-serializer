@@ -9,7 +9,10 @@ ActiveRecord::Associations::Builder::HasOne.class_eval do
     name = reflection.name
     mixin.class_eval <<-CODE, __FILE__, __LINE__ + 1
       def #{name}_id
-        # if an attribute is already defined with this methods name we should just use it
+        # if a variable is already defined with this methods name we should just use it
+        return instance_variable_get("@#{__method__}") if instance_variable_defined?("@#{__method__}")
+
+        # same with attributes
         return read_attribute(__method__) if has_attribute?(__method__)
         association(:#{name}).reader.try(:id)
       end
