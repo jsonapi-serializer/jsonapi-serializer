@@ -67,6 +67,8 @@ module FastJsonapi
       end
 
       def record_hash(record, fieldset, includes_list, params = {})
+        includes_list = parse_includes_list(includes_list)
+
         if cache_store_instance
           cache_opts = record_cache_options(cache_store_options, fieldset, includes_list, params)
           record_hash = cache_store_instance.fetch(record, **cache_opts) do
@@ -154,6 +156,9 @@ module FastJsonapi
       # @param includes_list [List] to be parsed
       # @return [Hash]
       def parse_includes_list(includes_list)
+        return {} unless includes_list.present?
+        return includes_list if includes_list.is_a?(Hash)
+
         includes_list.each_with_object({}) do |include_item, include_sets|
           include_base, include_remainder = include_item.to_s.split('.', 2)
           include_sets[include_base.to_sym] ||= Set.new
@@ -193,7 +198,7 @@ module FastJsonapi
 
             known_included_objects << code
 
-            included_records << serializer.record_hash(inc_obj, fieldsets[record_type], includes_list, params)
+            included_records << serializer.record_hash(inc_obj, fieldsets[record_type], include_item.last, params)
           end
         end
       end
