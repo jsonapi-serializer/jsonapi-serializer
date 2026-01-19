@@ -163,7 +163,7 @@ module FastJsonapi
       end
 
       def set_type(type_name)
-        self.record_type = run_key_transform(type_name)
+        self.record_type = type_name
       end
 
       def set_id(id_name = nil, &block)
