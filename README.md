@@ -482,7 +482,7 @@ the block to only receive one argument.
 
 ### Conditional Attributes
 
-Conditional attributes can be defined by passing a Proc to the `if` key on the `attribute` method. Return `true` if the attribute should be serialized, and `false` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
+Conditional attributes can be defined by passing a Proc to the `if` key on the `attribute` method. `if` proc returns `true` if the attribute should be serialized, and `false` if not. `unless` proc returns `false` if the attribute should be serialized, and `true` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
 
 ```ruby
 class MovieSerializer
@@ -493,6 +493,11 @@ class MovieSerializer
     # Release year will only be serialized if it's greater than 1990
     record.release_year > 1990
   }
+  attribute :secret_title, unless: Proc.new{ |record| 
+    # Title will only be serialized if movie title is available to public
+    record.secret_title?
+  }
+ 
 
   attribute :director, if: Proc.new { |record, params|
     # The director will be serialized only if the :admin key of params is true
@@ -515,7 +520,7 @@ serializer.serializable_hash
 
 ### Conditional Relationships
 
-Conditional relationships can be defined by passing a Proc to the `if` key. Return `true` if the relationship should be serialized, and `false` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
+Conditional relationships can be defined by passing a Proc to the `if` and `unless` keys. `if` proc returns `true` if the relationship should be serialized, and `false` if not. `unless` proc returns `false` if the relationship should be serialized, and `true` if not. The record and any params passed to the serializer are available inside the Proc as the first and second parameters, respectively.
 
 ```ruby
 class MovieSerializer
@@ -523,6 +528,9 @@ class MovieSerializer
 
   # Actors will only be serialized if the record has any associated actors
   has_many :actors, if: Proc.new { |record| record.actors.any? }
+
+  # Rewards will only be serialized for not banned films
+  has_many :rewards, unless: Proc.new { |record| record.banned? }
 
   # Owner will only be serialized if the :admin key of params is true
   belongs_to :owner, if: Proc.new { |record, params| params && params[:admin] == true }

@@ -5,10 +5,11 @@ require 'active_support/time'
 require 'active_support/concern'
 require 'active_support/inflector'
 require 'active_support/core_ext/numeric/time'
-require 'fast_jsonapi/helpers'
 require 'fast_jsonapi/attribute'
-require 'fast_jsonapi/relationship'
+require 'fast_jsonapi/conditional'
+require 'fast_jsonapi/helpers'
 require 'fast_jsonapi/link'
+require 'fast_jsonapi/relationship'
 require 'fast_jsonapi/serialization_core'
 
 module FastJsonapi
@@ -283,7 +284,7 @@ module FastJsonapi
           relationship_type: relationship_type,
           cached: options[:cached],
           polymorphic: polymorphic,
-          conditional_proc: options[:if],
+          conditional: Conditional.new(options.slice(*Conditional::CONDITIONAL_KEYS)),
           transform_method: @transform_method,
           meta: options[:meta],
           links: options[:links],

@@ -33,7 +33,15 @@ RSpec.describe JSONAPI::Serializer do
     end
 
     context 'with `if` conditions' do
-      let(:params) { { params: { conditionals_off: 'yes' } } }
+      let(:params) { { params: { if_conditionals_off: 'yes' } } }
+
+      it do
+        expect(serialized['data']).not_to have_attribute('email')
+      end
+    end
+
+    context 'with `unless` conditions' do
+      let(:params) { { params: { unless_conditionals_off: 'yes' } } }
 
       it do
         expect(serialized['data']).not_to have_attribute('email')
