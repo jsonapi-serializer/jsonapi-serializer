@@ -21,5 +21,12 @@ RSpec.describe JSONAPI::Serializer do
           JSONAPI::Serializer::UnsupportedIncludeError, /bad_include is not specified as a relationship/
         )
     end
+
+    it 'raises UnsupportedIncludeError for a serializer without relationships' do
+      expect { UserSerializer.new(User.fake, include: ['bad_include']) }
+        .to raise_error(
+          JSONAPI::Serializer::UnsupportedIncludeError, /bad_include is not specified as a relationship/
+        )
+    end
   end
 end

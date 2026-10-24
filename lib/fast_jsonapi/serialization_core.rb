@@ -5,7 +5,8 @@ require 'active_support/concern'
 require 'digest/sha1'
 
 module FastJsonapi
-  MandatoryField = Class.new(StandardError)
+  class MandatoryField < StandardError
+  end
 
   module SerializationCore
     extend ActiveSupport::Concern
@@ -99,8 +100,7 @@ module FastJsonapi
       # @param params [Hash] the serializer params
       #
       # @return [Hash] processed options hash
-      # rubocop:disable Lint/UnusedMethodArgument
-      def record_cache_options(options, fieldset, includes_list, params)
+      def record_cache_options(options, fieldset, includes_list, params) # rubocop:disable Lint/UnusedMethodArgument
         return options unless fieldset
 
         options = options ? options.dup : {}
@@ -117,7 +117,6 @@ module FastJsonapi
         options[:namespace] = "#{options[:namespace]}-fieldset:#{fieldset_key}"
         options
       end
-      # rubocop:enable Lint/UnusedMethodArgument
 
       def id_from_record(record, params)
         return FastJsonapi.call_proc(record_id, record, params) if record_id.is_a?(Proc)
